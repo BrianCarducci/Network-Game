@@ -17,6 +17,7 @@ public class Client {
     private PrintWriter out = null;
     private BufferedReader in = null;
     private GameWindow gameWindow;
+    private String clientNum = "0";
 
 
     public static void main(String[] args) {
@@ -40,13 +41,19 @@ public class Client {
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-            out.println("ENTER " + clientName);
-            
-            gameWindow = new GameWindow(out);
+            //out.println("ENTER " + clientName);
+//            String line = in.readLine();
+//            if (line.startsWith("CLIENTNUM")) {
+//            	clientNum = line.substring(line.indexOf(' ') + 1, line.length());
+//            	System.out.println(clientNum);
+//            }
+            gameWindow = new GameWindow(out, clientNum);
 
             while(true){
-                String line = in.readLine();
-                if(line == null) break;
+                String line2 = in.readLine();
+             
+                if(line2 == null) break;
+                
                 
             }
 

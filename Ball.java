@@ -5,11 +5,8 @@ public class Ball extends Ellipse2D.Double {
     private int yLoc = 0;
     private int direction = 0;
 
-    public Ball(int xLoc, int yLoc, int direction) {
-    	super(50,50,50,50);
-        this.xLoc = xLoc;
-        this.yLoc = yLoc;
-        this.direction = direction;
+    public Ball() {
+    	
     }
 
 	@Override

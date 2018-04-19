@@ -3,6 +3,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import java.awt.event.*;
+import java.awt.geom.Ellipse2D;
 import java.io.PrintWriter;
 
 public class GameWindow extends JPanel {
@@ -14,12 +15,14 @@ public class GameWindow extends JPanel {
 
 	private Ball ball;
 	private PrintWriter out;
+	private String clientNumber;
 
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
-    public GameWindow(PrintWriter out) {
+    public GameWindow(PrintWriter out, String clientNumber) {
     	
     	this.out = out;
+    	this.clientNumber = clientNumber;
     	
     	setPreferredSize(new Dimension(900,900));
     	setBackground(Color.black);
@@ -29,7 +32,12 @@ public class GameWindow extends JPanel {
         frame.setVisible(true);
         frame.add(this);
 
-        ball = new Ball(0,0,0);
+        ball = new Ball();
+        ball.height = 50;
+        ball.width = 50;
+        ball.x = 50;
+        ball.y = 50;
+       //System.out.println(ball.height);
 
         frame.pack();
         
@@ -39,7 +47,19 @@ public class GameWindow extends JPanel {
 			public void keyPressed(KeyEvent e) {
 				// TODO Auto-generated method stub
 				if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-					out.println("MV_LEFT 0");
+					out.println("MV_LEFT " + clientNumber);
+					System.out.println("pressed");
+				}
+				if (e.getKeyCode() == KeyEvent.VK_UP) {
+					out.println("MV_UP " + clientNumber);
+					System.out.println("pressed");
+				}
+				if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+					out.println("MV_RIGHT " + clientNumber);
+					System.out.println("pressed");
+				}
+				if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+					out.println("MV_DOWN " + clientNumber);
 					System.out.println("pressed");
 				}
 			}
@@ -47,7 +67,7 @@ public class GameWindow extends JPanel {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				// TODO Auto-generated method stub
-				
+					
 			}
 
 			@Override
@@ -71,9 +91,10 @@ public class GameWindow extends JPanel {
     }
     
     public void paintComponent(Graphics g) {
-    	super.paintComponent(g);
-    	g.setColor(Color.WHITE);
-    	g.fillArc(20, 20, 250, 250, 0, 360);
+//    	Graphics2D g2 = (Graphics2D) g;
+//    	System.out.println(ball.getHeight());
+//    	g2.fill(ball);
+    	
     }
 
 }
