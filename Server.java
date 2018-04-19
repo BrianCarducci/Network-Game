@@ -64,6 +64,7 @@ public class Server {
 
                 while (true) {
                     String line = in.readLine();
+                  
                     if(line == null) {
                         processLine("EXIT");
                         break;   
@@ -114,6 +115,7 @@ public class Server {
             for(Connection client : clients){
                 if(client != null && client.out != null && roomId.equals(client.roomId)){
                     client.out.println(message);
+                    textArea.append(message);
                 }
             }
         }
