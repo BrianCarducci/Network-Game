@@ -12,11 +12,20 @@ import java.awt.event.*;
 
 
 public class Client implements Serializable {
-    private final int IFW = JComponent.WHEN_IN_FOCUSED_WINDOW;
+    /**
+	 * 
+	 */
+	//private static final long serialVersionUID = 1L;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8564362918537326616L;
+	private final int IFW = JComponent.WHEN_IN_FOCUSED_WINDOW;
     private static final int port = 1518;
+    private static final int port2 = 1519;
     private String hostname;
     private String clientName;
-    private Socket socket = null;
+    private Socket socket = null, serialSocket = null;
     private PrintWriter out = null;
     private BufferedReader in = null;
     private GameWindow gameWindow;
@@ -44,8 +53,9 @@ public class Client implements Serializable {
         try {
         	
             socket = new Socket(hostname, port);
+            serialSocket = new Socket(hostname, port2);
             System.out.println("test");
-            inputStream = new ObjectInputStream(socket.getInputStream());
+            inputStream = new ObjectInputStream(serialSocket.getInputStream());
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
@@ -62,8 +72,8 @@ public class Client implements Serializable {
             while(true){
                 String line2 = in.readLine();
                 try {
-					Double[][] coords = (Double[][]) inputStream.readObject();
-					System.out.println(coords);
+					Object coords = inputStream.readObject();
+					System.out.println(coords.toString());
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
