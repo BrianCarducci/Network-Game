@@ -21,18 +21,18 @@ public class Client {
 
 
     public static void main(String[] args) {
-        Client chatClient = new Client("localhost", "Brian");    
+        Client chatClient = new Client("localhost", "Brian");
         //chatClient.initGUI();
         chatClient.run();
         System.out.println("after run");
-        
-        
+
+
     }
 
     public Client(String hostname, String clientName) {
         this.hostname = hostname;
         this.clientName = clientName;
-        
+
     }
 
     public void run() {
@@ -51,10 +51,10 @@ public class Client {
 
             while(true){
                 String line2 = in.readLine();
-             
+
                 if(line2 == null) break;
-                
-                
+
+
             }
 
             out.println("EXIT");
@@ -91,7 +91,7 @@ public class Client {
 //            int keys = e.getKeyCode();
 //            if (keys == KeyEvent.VK_ENTER) {
 //                out.println("MV_LEFT 0");
-//             
+//
 //            }
 //        }
 //    }

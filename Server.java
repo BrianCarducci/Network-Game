@@ -1,19 +1,27 @@
+import java.io.IOException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.Serializable;
+import java.io.*;
+import java.lang.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ArrayList;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.List;
 import java.lang.*;
 
-public class Server {
+public class Server implements java.io.Serializable{
   private static final int DEFAULT_PORT = 1518;
   private final List<Connection> clients = new ArrayList<>();
   private final List<String> usernames = new ArrayList<>();
-  private final String[] paddlePos = {"0.0,400.0","800.0,400.0","400.0,800.0","400.0,0.0"};
+  private final Double[][] paddlePos = {{0.0,400.0},{800.0,400.0},{400.0,800.0},{400.0,0.0}};
 
   public static void main(String[] args) {
     Server chatServer = new Server();
@@ -25,6 +33,7 @@ public class Server {
       ServerSocket serverSocket = new ServerSocket(DEFAULT_PORT);
       System.out.println("Server Running at localhost:" + DEFAULT_PORT + "\n");
       while (true) {
+        System.out.println("h e l p");
         Socket clientSocket = serverSocket.accept();
         String clientNum = String.valueOf(clients.size());
         Connection c = new Connection(clientSocket, clientNum);
@@ -46,23 +55,31 @@ public class Server {
 
   private void pushGameState() {
     for(Connection client : clients) {
-      if(client != null && client.out != null){
-        client.out.println(paddlePos);
-      }
+    //  if(client != null && client.out != null){
+        try {
+          client.outCoords.writeObject(paddlePos);
+          client.outCoords.flush();
+          System.out.println("sent");
+        } catch (IOException e){
+          System.out.println(e);
+        }
+      //}
     }
   }
 
   private class Connection extends Thread {
     Socket socket;
     public PrintWriter out;
+    public ObjectOutputStream outCoords;
     BufferedReader in;
     String clientNum = "";
     public String username = "";
     public String roomId = "0";
     public int playerNum;
 
-    public Connection(Socket socket, String clientNum) {
+    public Connection(Socket socket, String clientNum) throws IOException{
       this.socket = socket;
+      this.outCoords = new ObjectOutputStream(socket.getOutputStream());
       this.clientNum = clientNum;
     }
 
@@ -75,12 +92,8 @@ public class Server {
 
         while (true) {
           String line = in.readLine();
-          if(line == null) {
-            processLine("EXIT");
-            break;
-          }
-          processLine(line);
-          System.out.println(username + ": " + line + "\n");
+
+          if (line != null) processLine(line);
 
         }
 
@@ -106,26 +119,30 @@ public class Server {
     }
 
 
-    synchronized private void processLine(String line) {
+     private void processLine(String line) {
       this.playerNum = Integer.parseInt(line.substring(line.indexOf(' ') + 1, line.length()));
-      String coordinates = paddlePos[playerNum];
-      double x = Double.parseDouble(coordinates.substring(0, coordinates.indexOf(',')));
-      double y = Double.parseDouble(coordinates.substring(coordinates.indexOf(',')+1, coordinates.length()));
+      Double[] coordinates = paddlePos[playerNum];
+      double x = coordinates[0];
+      double y = coordinates[1];
       if(line.startsWith("MV_LEFT")){
         //update position of playerNum
-        synchronized(paddlePos){paddlePos[playerNum] = String.valueOf(x - 3.0) + "," + String.valueOf(y);}
+        synchronized(paddlePos){paddlePos[playerNum][0] = x - 3.0;}
+        synchronized(paddlePos){paddlePos[playerNum][1] = y;}
 
       }else if(line.startsWith("MV_RIGHT")){
         //update position of playerNum
-        synchronized(paddlePos){paddlePos[playerNum] = String.valueOf(x + 3.0) + "," + String.valueOf(y);}
+        synchronized(paddlePos){paddlePos[playerNum][0] = x + 3.0;}
+        synchronized(paddlePos){paddlePos[playerNum][1] = y;}
       }else if(line.startsWith("MV_UP")){
         //update position of playerNum
-        synchronized(paddlePos){paddlePos[playerNum] = String.valueOf(x) + "," + String.valueOf(y - 3.0);}
+        synchronized(paddlePos){paddlePos[playerNum][0] = x;}
+        synchronized(paddlePos){paddlePos[playerNum][1] = y - 3.0;}
       }else if(line.startsWith("MV_DOWN")){
         //update position of playerNum
-        synchronized(paddlePos){paddlePos[playerNum] = String.valueOf(x) + "," + String.valueOf(y + 3.0);}
+        synchronized(paddlePos){paddlePos[playerNum][0] = x;}
+        synchronized(paddlePos){paddlePos[playerNum][1] = y + 3.0;}
       }
-      for(String lines : paddlePos) {System.out.print(lines + " ");}
+      for(double lines : paddlePos[0]) {System.out.print(lines + " ");}
     }
 
   }
