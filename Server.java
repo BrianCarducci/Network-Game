@@ -17,8 +17,9 @@ import java.net.Socket;
 import java.util.List;
 import java.lang.*;
 
-public class Server implements java.io.Serializable{
+public class Server {
   private static final int DEFAULT_PORT = 1518;
+  private static final int COORDS_PORT = 1519;
   private final List<Connection> clients = new ArrayList<>();
   private final List<String> usernames = new ArrayList<>();
   private final Double[][] paddlePos = {{0.0,400.0},{800.0,400.0},{400.0,800.0},{400.0,0.0}};
@@ -31,12 +32,14 @@ public class Server implements java.io.Serializable{
   private void run() {
     try {
       ServerSocket serverSocket = new ServerSocket(DEFAULT_PORT);
+      ServerSocket serverSocket2 = new ServerSocket(COORDS_PORT);
       System.out.println("Server Running at localhost:" + DEFAULT_PORT + "\n");
       while (true) {
         System.out.println("h e l p");
         Socket clientSocket = serverSocket.accept();
+        Socket coordsSocket = serverSocket2.accept();
         String clientNum = String.valueOf(clients.size());
-        Connection c = new Connection(clientSocket, clientNum);
+        Connection c = new Connection(clientSocket, coordsSocket, clientNum);
         synchronized(clients){
           clients.add(c);
           System.out.println("Clients connected: " + clients.size());
@@ -56,11 +59,12 @@ public class Server implements java.io.Serializable{
   private void pushGameState() {
     for(Connection client : clients) {
     //  if(client != null && client.out != null){
-        try {
-          client.outCoords.writeObject(paddlePos);
+       try {
+         CoordsMsg msg = new CoordsMsg(paddlePos);
+          client.outCoords.writeObject(msg);
           client.outCoords.flush();
           System.out.println("sent");
-        } catch (IOException e){
+      } catch (IOException e){
           System.out.println(e);
         }
       //}
@@ -69,6 +73,7 @@ public class Server implements java.io.Serializable{
 
   private class Connection extends Thread {
     Socket socket;
+    Socket coordsSocket;
     public PrintWriter out;
     public ObjectOutputStream outCoords;
     BufferedReader in;
@@ -77,9 +82,10 @@ public class Server implements java.io.Serializable{
     public String roomId = "0";
     public int playerNum;
 
-    public Connection(Socket socket, String clientNum) throws IOException{
+    public Connection(Socket socket, Socket cSocket, String clientNum) throws IOException{
       this.socket = socket;
-      this.outCoords = new ObjectOutputStream(socket.getOutputStream());
+      this.coordsSocket = cSocket;
+      this.outCoords = new ObjectOutputStream(coordsSocket.getOutputStream());
       this.clientNum = clientNum;
     }
 
