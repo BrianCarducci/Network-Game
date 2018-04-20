@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.net.*;
 import javax.swing.*;
 import java.awt.*;
@@ -70,16 +71,17 @@ public class Client implements Serializable {
             gameWindow = new GameWindow(out, clientNum);
 
             while(true){
-                String line2 = in.readLine();
+                //String line2 = in.readLine();
                 try {
-					Object coords = inputStream.readObject();
-					System.out.println(coords.toString());
+					CoordsMsg coords = (CoordsMsg) inputStream.readObject();
+					
+					System.out.println(Arrays.deepToString(coords.getCoords()));
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
              
-                if(line2 == null) break;
+                //if(line2 == null) break;
                 
                 
             }

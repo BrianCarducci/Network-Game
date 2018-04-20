@@ -34,6 +34,8 @@ public class Server {
       ServerSocket serverSocket = new ServerSocket(DEFAULT_PORT);
       ServerSocket serverSocket2 = new ServerSocket(COORDS_PORT);
       System.out.println("Server Running at localhost:" + DEFAULT_PORT + "\n");
+
+
       while (true) {
         System.out.println("h e l p");
         Socket clientSocket = serverSocket.accept();
@@ -45,12 +47,8 @@ public class Server {
           System.out.println("Clients connected: " + clients.size());
         }
         c.start();
-
-        //int curTime0 = System.currentTimeMillis();
-        pushGameState();
-        //int curTime1 = System.currentTimeMillis();
-        //Thread.sleep(curTime1 - curTime0);
       }
+
     } catch (Exception e) {
       System.err.println("Error occured creating server socket: " + e.getMessage());
     }
@@ -63,7 +61,6 @@ public class Server {
          CoordsMsg msg = new CoordsMsg(paddlePos);
           client.outCoords.writeObject(msg);
           client.outCoords.flush();
-          System.out.println("sent");
       } catch (IOException e){
           System.out.println(e);
         }
@@ -97,13 +94,20 @@ public class Server {
         out.println("CLIENTNUM " + clientNum);
 
         while (true) {
+          pushGameState();
+
           String line = in.readLine();
 
-          if (line != null) processLine(line);
+          //if (line != null) processLine(line);
+
+          //int curTime0 = (int) System.currentTimeMillis();
+          //pushGameState();
+          //int curTime1 = (int) System.currentTimeMillis();
+          //Thread.sleep(curTime1 - curTime0);
 
         }
 
-      } catch (IOException e) {
+      } catch (Exception e) {
         System.out.println("Error connecting, Terminating. " + e.getMessage());
       }finally{
         closeResources();
