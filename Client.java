@@ -1,14 +1,17 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.net.UnknownHostException;
 import java.net.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class Client {
+
+public class Client implements Serializable {
     private final int IFW = JComponent.WHEN_IN_FOCUSED_WINDOW;
     private static final int port = 1518;
     private String hostname;
@@ -18,26 +21,31 @@ public class Client {
     private BufferedReader in = null;
     private GameWindow gameWindow;
     private String clientNum = "0";
+    private ObjectInputStream inputStream;
 
 
     public static void main(String[] args) {
-        Client chatClient = new Client("localhost", "Brian");
+        Client chatClient = new Client("10.111.136.163", args[0]);    
         //chatClient.initGUI();
         chatClient.run();
         System.out.println("after run");
-
-
+        
+        
     }
 
     public Client(String hostname, String clientName) {
         this.hostname = hostname;
         this.clientName = clientName;
-
+        
+        
     }
 
     public void run() {
         try {
+        	
             socket = new Socket(hostname, port);
+            System.out.println("test");
+            inputStream = new ObjectInputStream(socket.getInputStream());
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
@@ -47,17 +55,26 @@ public class Client {
 //            	clientNum = line.substring(line.indexOf(' ') + 1, line.length());
 //            	System.out.println(clientNum);
 //            }
+            
+            
             gameWindow = new GameWindow(out, clientNum);
 
             while(true){
                 String line2 = in.readLine();
-
+                try {
+					Double[][] coords = (Double[][]) inputStream.readObject();
+					System.out.println(coords);
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+             
                 if(line2 == null) break;
-
-
+                
+                
             }
 
-            out.println("EXIT");
+            //out.println("EXIT");
 
         } catch (UnknownHostException e) {
             System.out.println("Unknown host: " + hostname);
@@ -91,7 +108,7 @@ public class Client {
 //            int keys = e.getKeyCode();
 //            if (keys == KeyEvent.VK_ENTER) {
 //                out.println("MV_LEFT 0");
-//
+//             
 //            }
 //        }
 //    }
