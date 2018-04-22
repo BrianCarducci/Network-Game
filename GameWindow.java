@@ -67,11 +67,11 @@ public class GameWindow extends JPanel {
 					}
 					if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 						out.writeObject(MV_RIGHT);
-						System.out.println("Sent: " + MV_UP);
+						System.out.println("Sent: " + MV_RIGHT);
 					}
 					if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 						out.writeObject(MV_DOWN);
-						System.out.println("Sent: " + MV_UP);
+						System.out.println("Sent: " + MV_DOWN);
 					}
 				} catch (IOException err) {
 					System.out.println(err);
