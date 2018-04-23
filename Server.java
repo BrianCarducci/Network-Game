@@ -71,6 +71,7 @@ public class Server {
     for(Connection client : clients) {
       if(client != null && client.out != null){
         try {
+          client.out.reset();
           client.out.writeObject(paddlePos);
           client.out.flush();
         } catch (IOException e){
