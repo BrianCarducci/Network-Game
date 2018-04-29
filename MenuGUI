@@ -1,0 +1,88 @@
+import java.awt.EventQueue;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.JButton;
+
+public class MenuGui {
+
+	private JFrame frame;
+	private JTextField textFieldUserName;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					MenuGui window = new MenuGui();
+					window.frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the application.
+	 */
+	public MenuGui() {
+		initialize();
+	}
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+		frame = new JFrame();
+		frame.setBounds(100, 100, 450, 300);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().setLayout(null);
+		
+		JLabel lblTitle = new JLabel("PONG: CATACLYSM");
+		lblTitle.setBounds(10, 11, 103, 14);
+		frame.getContentPane().add(lblTitle);
+		
+		JLabel lblUserName = new JLabel("USERNAME:");
+		lblUserName.setBounds(220, 11, 61, 14);
+		frame.getContentPane().add(lblUserName);
+		
+		JRadioButton rdbtnPlayerSelect = new JRadioButton("PLAYER");
+		rdbtnPlayerSelect.setBounds(20, 32, 109, 23);
+		frame.getContentPane().add(rdbtnPlayerSelect);
+		
+		JRadioButton rdbtnSpectatorSelect = new JRadioButton("SPECTATOR");
+		rdbtnSpectatorSelect.setBounds(20, 58, 109, 23);
+		frame.getContentPane().add(rdbtnSpectatorSelect);
+		
+		textFieldUserName = new JTextField();
+		textFieldUserName.setBounds(291, 8, 86, 20);
+		frame.getContentPane().add(textFieldUserName);
+		textFieldUserName.setColumns(10);
+		
+		JTextPane txtpnStatusBox = new JTextPane();
+		txtpnStatusBox.setText("Welcome! The match is waiting to start. There are currently 0 players and 0 spectators. If the number of players exceeds 4 when the game starts, all excess players will be booted to spectator.\r\n\r\nALTERNATE: Welcome! A match is currently in progress. Until it is over, you may only select \"SPECTATOR\".");
+		txtpnStatusBox.setEditable(false);
+		txtpnStatusBox.setBounds(10, 144, 414, 85);
+		frame.getContentPane().add(txtpnStatusBox);
+		
+		JButton btnReadyButton = new JButton("READY");
+		btnReadyButton.setBounds(100, 110, 89, 23);
+		frame.getContentPane().add(btnReadyButton);
+		
+		JButton btnUnreadyButton = new JButton("UNREADY");
+		btnUnreadyButton.setBounds(242, 110, 89, 23);
+		frame.getContentPane().add(btnUnreadyButton);
+		
+		JTextPane textCountdown = new JTextPane();
+		textCountdown.setText("THE WINNER OF THE LAST MATCH WAS ________\r\n\r\nTHE NEXT MATCH WILL BEGIN IN _____ SECONDS");
+		textCountdown.setEditable(false);
+		textCountdown.setBounds(174, 51, 250, 48);
+		frame.getContentPane().add(textCountdown);
+	}
+}
