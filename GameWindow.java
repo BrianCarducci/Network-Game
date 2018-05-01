@@ -17,37 +17,37 @@ public class GameWindow extends JFrame {
 
 	private Ball ball;
 	private ObjectOutputStream out;
-	private String clientNumber;
+	private int clientNumber;
 
 	private String MV_LEFT = "MV_LEFT ";
 	private String MV_RIGHT = "MV_RIGHT ";
 	private String MV_UP = "MV_UP ";
 	private String MV_DOWN = "MV_DOWN ";
-	
+
 	private Board board;
 	private Rectangle2D.Double paddle;
 
 	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
 	public GameWindow(ObjectOutputStream out, String clientNumber) {
-		
-		paddle = new Rectangle2D.Double(200, 200, 200, 200);
+		paddle = new Rectangle2D.Double(200, 200, 200, 30);
 
 		this.out = out;
-		this.clientNumber = clientNumber;
+		this.clientNumber = Integer.parseInt(clientNumber);
 		MV_LEFT += clientNumber;
 		MV_RIGHT += clientNumber;
 		MV_UP += clientNumber;
 		MV_DOWN += clientNumber;
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setResizable(false);
 		setSize(900,900);
-		
+
 		board = new Board();
-		
+
 		add(board, BorderLayout.CENTER);
 		setVisible(true);
-	
+
 
 		addKeyListener(new KeyListener() {
 
@@ -65,9 +65,6 @@ public class GameWindow extends JFrame {
 					}
 					if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 						out.writeObject(MV_RIGHT);
-						paddle.x += 20;
-						board.repaint();
-						
 						System.out.println("Sent: " + MV_RIGHT);
 					}
 					if (e.getKeyCode() == KeyEvent.VK_DOWN) {
@@ -92,61 +89,75 @@ public class GameWindow extends JFrame {
 			}
 
 		});
-		
+
 		addMouseMotionListener(new MouseMotionListener() {
 
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void mouseMoved(MouseEvent e) {
 				try {
-					
+
+				if (paddle.x < e.getX()) {
+						out.writeObject(MV_RIGHT);
+						System.out.println("Sent: MV_RIGHT");
+				}
+				if (paddle.x > e.getX()) {
+					out.writeObject(MV_LEFT);
+					System.out.println("Sent: MV_LEFT");
+				}
 				if (paddle.y < e.getY()) {
 						out.writeObject(MV_UP);
+						System.out.println("Sent: MV_UP");
 				}
 				if (paddle.y > e.getY()) {
 					out.writeObject(MV_DOWN);
+					System.out.println("Sent: MV_DOWN");
 				}
-				
-				
-				paddle.x = e.getX();
-				paddle.y = e.getY();
-				repaint();
-			
+
+
+				//paddle.x = e.getX();
+				//paddle.y = e.getY();
+				//repaint();
+
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
-			
+
 			}
 		});
 	}
-	
+
+	public void movePaddle(Double[][] coords) {
+		paddle.x = coords[clientNumber][0];
+		paddle.y = coords[clientNumber][1];
+		repaint();
+	}
+
 	private class Board extends JPanel {
-		
+
 		public Board() {
 			setBackground(Color.BLACK);
 		}
-		
+
 		public void paintComponent(Graphics g) {
-			System.out.println("paint called");
+			//System.out.println("paint called");
 			super.paintComponent(g);
 			Graphics2D g2 = (Graphics2D) g;
-			
+
 			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 					RenderingHints.VALUE_ANTIALIAS_ON);
-			
+
 			g2.setPaint(Color.white);
 			g2.fill(paddle);
-			
+
 		}
-		
+
 	}
 
 
 }
-
-

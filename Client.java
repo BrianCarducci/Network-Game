@@ -77,7 +77,8 @@ public class Client implements Serializable {
 				//String line2 = (String)in.readObject();
 				try {
 					Double[][] coords = (Double[][]) in.readObject();
-
+					gameWindow.movePaddle(coords);
+					
 					System.out.println(Arrays.deepToString(coords));
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
