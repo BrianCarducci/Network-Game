@@ -22,7 +22,8 @@ public class Server {
   private static final int DEFAULT_PORT = 1518;
   private final List<Connection> clients = new ArrayList<>();
   private final List<String> usernames = new ArrayList<>();
-  private final Integer[][] paddlePos = {{0,400}, {1,400}, {2,400}, {3, 400}}; //Each entry is [clientNum, <X or Y>] , where x or y depends on which client. 0,1 = y, 2,3 = x
+  //private final Integer[][] paddlePos = {{0,200}, {1,200}, {2,400}, {3, 400}}; //Each entry is [clientNum, <X or Y>] , where x or y depends on which client. 0,1 = y, 2,3 = x
+  private final Integer[][] paddlePos = {{0,200}, {1,200}}; //Each entry is [clientNum, <X or Y>] , where x or y depends on which client. 0,1 = y, 2,3 = x
 
   public static void main(String[] args) {
     Server chatServer = new Server();
@@ -93,6 +94,7 @@ public class Server {
     public Connection(Socket socket, String clientNum) throws IOException{
       this.socket = socket;
       this.clientNum = clientNum;
+      System.out.println("Client number: " + clientNum + "connected.");
     }
 
     public void run() {

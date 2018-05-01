@@ -14,17 +14,9 @@ import java.awt.event.*;
 
 
 public class Client implements Serializable {
-	/**
-	*
-	*/
-	//private static final long serialVersionUID = 1L;
-	/**
-	*
-	*/
-	private static final long serialVersionUID = 8564362918537326616L;
+	//private static final long serialVersionUID = 8564362918537326616L;
 	private final int IFW = JComponent.WHEN_IN_FOCUSED_WINDOW;
 	private static final int port = 1518;
-	private static final int port2 = 1519;
 	private String hostname;
 	private String clientName;
 	private Socket socket = null;
@@ -54,7 +46,6 @@ public class Client implements Serializable {
 		try {
 
 			socket = new Socket(hostname, port);
-			System.out.println("test");
 			in = new ObjectInputStream(socket.getInputStream());
 			out = new ObjectOutputStream(socket.getOutputStream());
 
@@ -74,7 +65,6 @@ public class Client implements Serializable {
 			gameWindow = new GameWindow(out, clientNum);
 
 			while(true){
-				//String line2 = (String)in.readObject();
 				try {
 					Integer[][] coords = (Integer[][]) in.readObject();
 					gameWindow.movePaddle(coords);
@@ -84,9 +74,6 @@ public class Client implements Serializable {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-
-				//if(line2 == null) break;
-
 
 			}
 
