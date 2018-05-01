@@ -77,7 +77,7 @@ public class Client implements Serializable {
 					if (input instanceof Integer[][] && clientNum != -1) {
 						Integer[][] coords = (Integer[][]) in.readObject();
 						gameWindow.movePaddle(coords);
-						System.out.println(Arrays.deepToString(coords));
+						//System.out.println(Arrays.deepToString(coords));
 					}
 
 				} catch (ClassNotFoundException e) {

@@ -25,7 +25,7 @@ public class Server {
   private final List<String> usernames = new ArrayList<>();
   //private final Integer[][] paddlePos = {{0,200}, {1,200}, {2,400}, {3, 400}}; //Each entry is [clientNum, <X or Y>] , where x or y depends on which client. 0,1 = y, 2,3 = x
   private final Integer[][] paddlePos = {{350,350}, {0,200}, {1,200}}; //Each entry is [clientNum, <X or Y>] , where x or y depends on which client. 0,1 = y, 2,3 = x
-  private double angle = 90;
+  private double angle = 50;
   
   public static void main(String[] args) {
     Server chatServer = new Server();
@@ -98,7 +98,7 @@ public class Server {
       if(client != null && client.out != null){
         try {
           client.writeObject(paddlePos, true);
-          System.out.println("SENDING: " + Arrays.deepToString(paddlePos));
+         
         } catch (IOException e){
           System.out.println(e);
         }
@@ -108,19 +108,28 @@ public class Server {
   
   private synchronized void checkCollision() {
 	  
-	  if (paddlePos[0][1] <= 26) {
-		  angle = -angle;
+	  Integer[] ballPos = paddlePos[0];
+	  
+	  if (ballPos[1] <= 0) {
+		  angle = angle - 180;
 	  }
-	  if (paddlePos[0][1] >= 803) {
-		  angle = -angle;
+	  if (ballPos[1] >= 777) {
+		  angle = angle - 180;
 	  }
+	  if (ballPos[0] <= 0) {
+		  angle = angle - 180;
+	  }
+	  if (ballPos[0] >= 833) {
+		  angle = angle - 180;
+	  }
+	  
 		  
   }
   
   private synchronized void translateBall() {
 	  paddlePos[0][0] += (int) Math.cos(Math.toRadians(angle));
 	  paddlePos[0][1] += (int) Math.sin(Math.toRadians(angle));
-	  System.out.println(Math.round(Math.toRadians(angle)));
+	  System.out.println(Math.round(Math.sin(Math.toRadians(angle))));
   }
 
   synchronized private void movePaddle(Integer[] line) {
@@ -142,7 +151,7 @@ public class Server {
     public Connection(Socket socket, String clientNum) throws IOException{
       this.socket = socket;
       this.clientNum = clientNum;
-      System.out.println("Client number: " + clientNum + " connected.");
+
 
     }
 
@@ -157,7 +166,7 @@ public class Server {
         in = new ObjectInputStream(socket.getInputStream());
 
         writeObject(new String("CLIENTNUM " + clientNum), false);
-        System.out.println("CLIENTNUM: " + clientNum + " SENT");
+
 
         while (true) {
           //pushGameState();
