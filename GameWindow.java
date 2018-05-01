@@ -19,25 +19,20 @@ public class GameWindow extends JFrame {
 	private ObjectOutputStream out;
 	private int clientNumber;
 
-	private String MV_LEFT = "MV_LEFT ";
-	private String MV_RIGHT = "MV_RIGHT ";
-	private String MV_UP = "MV_UP ";
-	private String MV_DOWN = "MV_DOWN ";
-
 	private Board board;
 	private Rectangle2D.Double paddle;
 
 	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
-	public GameWindow(ObjectOutputStream out, String clientNumber) {
-		paddle = new Rectangle2D.Double(200, 200, 200, 30);
+	public GameWindow(ObjectOutputStream out, int clientNumber) {
+		paddle = new Rectangle2D.Double(0, 200, 30, 200);
 
 		this.out = out;
-		this.clientNumber = Integer.parseInt(clientNumber);
-		MV_LEFT += clientNumber;
-		MV_RIGHT += clientNumber;
-		MV_UP += clientNumber;
-		MV_DOWN += clientNumber;
+		this.clientNumber = clientNumber;
+		//MV_LEFT += clientNumber;
+		//MV_RIGHT += clientNumber;
+		//MV_UP += clientNumber;
+		//MV_DOWN += clientNumber;
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setResizable(false);
@@ -49,14 +44,14 @@ public class GameWindow extends JFrame {
 		setVisible(true);
 
 
-		addKeyListener(new KeyListener() {
+		/*addKeyListener(new KeyListener() {
 
 			@Override
 			public void keyPressed(KeyEvent e) {
 				// TODO Auto-generated method stub
 				try {
 					if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-						out.writeObject(MV_LEFT);
+						out.writeObject({e.getX(), e.getY()}); //fak
 						System.out.println("Sent: " + MV_LEFT);
 					}
 					if (e.getKeyCode() == KeyEvent.VK_UP) {
@@ -88,7 +83,7 @@ public class GameWindow extends JFrame {
 
 			}
 
-		});
+		}); */
 
 		addMouseMotionListener(new MouseMotionListener() {
 
@@ -101,23 +96,10 @@ public class GameWindow extends JFrame {
 			@Override
 			public void mouseMoved(MouseEvent e) {
 				try {
+				System.out.println("MouseX: " + e.getX() + "   MouseY: " + e.getY());
 
-				if (paddle.x < e.getX()) {
-						out.writeObject(MV_RIGHT);
-						System.out.println("Sent: MV_RIGHT");
-				}
-				if (paddle.x > e.getX()) {
-					out.writeObject(MV_LEFT);
-					System.out.println("Sent: MV_LEFT");
-				}
-				if (paddle.y < e.getY()) {
-						out.writeObject(MV_UP);
-						System.out.println("Sent: MV_UP");
-				}
-				if (paddle.y > e.getY()) {
-					out.writeObject(MV_DOWN);
-					System.out.println("Sent: MV_DOWN");
-				}
+				out.writeObject(new Integer[]{clientNumber, e.getY()});
+				System.out.println("Sent: Updated Y Coords");
 
 
 				//paddle.x = e.getX();
@@ -132,8 +114,7 @@ public class GameWindow extends JFrame {
 		});
 	}
 
-	public void movePaddle(Double[][] coords) {
-		paddle.x = coords[clientNumber][0];
+	public void movePaddle(Integer[][] coords) {
 		paddle.y = coords[clientNumber][1];
 		repaint();
 	}

@@ -22,7 +22,7 @@ public class Server {
   private static final int DEFAULT_PORT = 1518;
   private final List<Connection> clients = new ArrayList<>();
   private final List<String> usernames = new ArrayList<>();
-  private final Double[][] paddlePos = {{0.0,400.0},{800.0,400.0},{400.0,800.0},{400.0,0.0}};
+  private final Integer[][] paddlePos = {{0,400}, {1,400}, {2,400}, {3, 400}}; //Each entry is [clientNum, <X or Y>] , where x or y depends on which client. 0,1 = y, 2,3 = x
 
   public static void main(String[] args) {
     Server chatServer = new Server();
@@ -105,7 +105,7 @@ public class Server {
 
         while (true) {
           pushGameState();
-          String line = (String) in.readObject();
+          Integer[] line = (Integer[]) in.readObject();
 
           processLine(line);
 
@@ -133,29 +133,11 @@ public class Server {
     }
 
 
-    synchronized private void processLine(String line) {
-      playerNum = Integer.parseInt(line.substring(line.indexOf(' ') + 1, line.length()));
-      Double[] coordinates = paddlePos[playerNum];
-      double x = coordinates[0];
-      double y = coordinates[1];
-      if(line.startsWith("MV_LEFT")){
-        //update position of playerNum
-        paddlePos[playerNum][0] = x - 3.0;
-        paddlePos[playerNum][1] = y;
+    synchronized private void processLine(Integer[] line) {
+      playerNum = line[0];
+      int x = line[1];
 
-      }else if(line.startsWith("MV_RIGHT")){
-        //update position of playerNum
-        paddlePos[playerNum][0] = x + 3.0;
-        paddlePos[playerNum][1] = y;
-      }else if(line.startsWith("MV_UP")){
-        //update position of playerNum
-        paddlePos[playerNum][0] = x;
-        paddlePos[playerNum][1] = y - 3.0;
-      }else if(line.startsWith("MV_DOWN")){
-        //update position of playerNum
-        paddlePos[playerNum][0] = x;
-        paddlePos[playerNum][1] = y + 3.0;
-      }
+      paddlePos[playerNum][1] = x;
       System.out.println(Arrays.deepToString(paddlePos));
     }
 

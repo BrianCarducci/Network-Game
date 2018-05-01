@@ -31,7 +31,7 @@ public class Client implements Serializable {
 	private ObjectInputStream in = null;
 	private ObjectOutputStream out = null;
 	private GameWindow gameWindow;
-	private String clientNum;
+	private int clientNum;
 
 
 	public static void main(String[] args) {
@@ -62,7 +62,7 @@ public class Client implements Serializable {
 			try{
 				String line = (String) in.readObject();
 				if (line.startsWith("CLIENTNUM")) {
-					clientNum = line.substring(line.indexOf(' ') + 1, line.length());
+					clientNum = Integer.parseInt(line.substring(line.indexOf(' ') + 1, line.length()));
 					System.out.println("ClientNum = " + clientNum);
 				}
 			}
@@ -76,9 +76,9 @@ public class Client implements Serializable {
 			while(true){
 				//String line2 = (String)in.readObject();
 				try {
-					Double[][] coords = (Double[][]) in.readObject();
+					Integer[][] coords = (Integer[][]) in.readObject();
 					gameWindow.movePaddle(coords);
-					
+
 					System.out.println(Arrays.deepToString(coords));
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
