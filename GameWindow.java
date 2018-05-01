@@ -1,13 +1,14 @@
 import java.awt.*;
+
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import java.awt.event.*;
-import java.awt.geom.Ellipse2D;
-import java.io.ObjectOutputStream;
+import java.awt.geom.*;
 import java.io.*;
 
-public class GameWindow extends JPanel {
+public class GameWindow extends JFrame {
 
 	/**
 	*
@@ -22,10 +23,15 @@ public class GameWindow extends JPanel {
 	private String MV_RIGHT = "MV_RIGHT ";
 	private String MV_UP = "MV_UP ";
 	private String MV_DOWN = "MV_DOWN ";
+	
+	private Board board;
+	private Rectangle2D.Double paddle;
 
 	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
 	public GameWindow(ObjectOutputStream out, String clientNumber) {
+		
+		paddle = new Rectangle2D.Double(200, 200, 200, 200);
 
 		this.out = out;
 		this.clientNumber = clientNumber;
@@ -34,24 +40,16 @@ public class GameWindow extends JPanel {
 		MV_UP += clientNumber;
 		MV_DOWN += clientNumber;
 
-		setPreferredSize(new Dimension(900,900));
-		setBackground(Color.black);
-		setLayout(null);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setSize(900,900);
+		
+		board = new Board();
+		
+		add(board, BorderLayout.CENTER);
+		setVisible(true);
+	
 
-		JFrame frame = new JFrame("Pong boi");
-		frame.setVisible(true);
-		frame.add(this);
-
-		ball = new Ball();
-		ball.height = 50;
-		ball.width = 50;
-		ball.x = 50;
-		ball.y = 50;
-		//System.out.println(ball.height);
-
-		frame.pack();
-
-		frame.addKeyListener(new KeyListener() {
+		addKeyListener(new KeyListener() {
 
 			@Override
 			public void keyPressed(KeyEvent e) {
@@ -67,6 +65,9 @@ public class GameWindow extends JPanel {
 					}
 					if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 						out.writeObject(MV_RIGHT);
+						paddle.x += 20;
+						board.repaint();
+						
 						System.out.println("Sent: " + MV_RIGHT);
 					}
 					if (e.getKeyCode() == KeyEvent.VK_DOWN) {
@@ -91,24 +92,61 @@ public class GameWindow extends JPanel {
 			}
 
 		});
+		
+		addMouseMotionListener(new MouseMotionListener() {
 
-		frame.addWindowListener(new java.awt.event.WindowAdapter() {
-			public void windowClosing(WindowEvent windowEvent) {
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseMoved(MouseEvent e) {
 				try {
-					//sysout.println("EXIT");
-				} catch (Exception e) {
-					System.out.println(e);
+					
+				if (paddle.y < e.getY()) {
+						out.writeObject(MV_UP);
 				}
-				System.exit(0);
+				if (paddle.y > e.getY()) {
+					out.writeObject(MV_DOWN);
+				}
+				
+				
+				paddle.x = e.getX();
+				paddle.y = e.getY();
+				repaint();
+			
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			
 			}
 		});
 	}
-
-	public void paintComponent(Graphics g) {
-		//    	Graphics2D g2 = (Graphics2D) g;
-		//    	System.out.println(ball.getHeight());
-		//    	g2.fill(ball);
-
+	
+	private class Board extends JPanel {
+		
+		public Board() {
+			setBackground(Color.BLACK);
+		}
+		
+		public void paintComponent(Graphics g) {
+			System.out.println("paint called");
+			super.paintComponent(g);
+			Graphics2D g2 = (Graphics2D) g;
+			
+			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+					RenderingHints.VALUE_ANTIALIAS_ON);
+			
+			g2.setPaint(Color.white);
+			g2.fill(paddle);
+			
+		}
+		
 	}
 
+
 }
+
+
