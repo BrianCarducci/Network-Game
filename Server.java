@@ -45,18 +45,21 @@ public class Server {
               System.out.println(e);
             }*/
 
-            Connection[] conns = clients.toArray(new Connection[clients.size()]);
+            //Connection[] conns = clients.toArray(new Connection[clients.size()]);
               //System.out.println(conns.length);
-            if (conns.length > 0) {
-              int curTime0 = (int) System.currentTimeMillis();
-              pushGameState(); //TODO: make this work
-              int curTime1 = (int) System.currentTimeMillis();
-              try {
-                Thread.sleep(curTime1 - curTime0);
-              } catch (InterruptedException intexc) {
-                System.out.println(intexc);
+              synchronized(clients) {
+                System.out.println(clients.size());
+                if (clients.size() > 0) {
+                  int curTime0 = (int) System.currentTimeMillis();
+                  pushGameState(); //TODO: make this work
+                  int curTime1 = (int) System.currentTimeMillis();
+                  try {
+                    Thread.sleep(curTime1 - curTime0);
+                  } catch (InterruptedException intexc) {
+                    System.out.println(intexc);
+                  }
+                }
               }
-            }
           }
         }
 
