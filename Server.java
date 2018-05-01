@@ -12,6 +12,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.List;
@@ -24,7 +25,8 @@ public class Server {
   private final List<String> usernames = new ArrayList<>();
   //private final Integer[][] paddlePos = {{0,200}, {1,200}, {2,400}, {3, 400}}; //Each entry is [clientNum, <X or Y>] , where x or y depends on which client. 0,1 = y, 2,3 = x
   private final Integer[][] paddlePos = {{350,350}, {0,200}, {1,200}}; //Each entry is [clientNum, <X or Y>] , where x or y depends on which client. 0,1 = y, 2,3 = x
-
+  private double angle = 90;
+  
   public static void main(String[] args) {
     Server chatServer = new Server();
     chatServer.run();
@@ -48,9 +50,11 @@ public class Server {
             //Connection[] conns = clients.toArray(new Connection[clients.size()]);
               //System.out.println(conns.length);
               synchronized(clients) {
-                System.out.println(clients.size());
+        
                 if (clients.size() > 0) {
                   int curTime0 = (int) System.currentTimeMillis();
+//                  translateBall();
+//                  checkCollision();
                   pushGameState(); //TODO: make this work
                   int curTime1 = (int) System.currentTimeMillis();
                   try {
@@ -83,12 +87,17 @@ public class Server {
   }
 
   synchronized private void pushGameState() {
+	  // Update game state
+    Random random = new Random();
+    boolean flag = random.nextBoolean();
+    translateBall();
+    checkCollision();
+
+    // Transmit game state to the clients
     for(Connection client : clients) {
       if(client != null && client.out != null){
         try {
-          client.out.reset();
-          client.out.writeObject(paddlePos);
-          client.out.flush();
+          client.writeObject(paddlePos, true);
           System.out.println("SENDING: " + Arrays.deepToString(paddlePos));
         } catch (IOException e){
           System.out.println(e);
@@ -96,11 +105,35 @@ public class Server {
       }
     }
   }
+  
+  private synchronized void checkCollision() {
+	  
+	  if (paddlePos[0][1] <= 26) {
+		  angle = -angle;
+	  }
+	  if (paddlePos[0][1] >= 803) {
+		  angle = -angle;
+	  }
+		  
+  }
+  
+  private synchronized void translateBall() {
+	  paddlePos[0][0] += (int) Math.cos(Math.toRadians(angle));
+	  paddlePos[0][1] += (int) Math.sin(Math.toRadians(angle));
+	  System.out.println(Math.round(Math.toRadians(angle)));
+  }
+
+  synchronized private void movePaddle(Integer[] line) {
+      int playerNum = line[0];
+      int x = line[1];
+
+      paddlePos[playerNum][1] = x;
+    }
 
   private class Connection extends Thread {
     Socket socket;
     public ObjectInputStream in;
-    public ObjectOutputStream out;
+    private ObjectOutputStream out;
     String clientNum = "";
     public String username = "";
     public String roomId = "0";
@@ -113,20 +146,24 @@ public class Server {
 
     }
 
+    public synchronized void writeObject(Object obj, boolean reset) throws IOException {
+    	if (reset) out.reset();
+    	out.writeObject(obj);
+    }
+    
     public void run() {
       try {
         out = new ObjectOutputStream(socket.getOutputStream());
         in = new ObjectInputStream(socket.getInputStream());
 
-        out.writeObject(new String("CLIENTNUM " + clientNum));
+        writeObject(new String("CLIENTNUM " + clientNum), false);
         System.out.println("CLIENTNUM: " + clientNum + " SENT");
 
         while (true) {
           //pushGameState();
           Integer[] line = (Integer[]) in.readObject();
-
-          processLine(line);
-
+          System.out.println("read mouse input");
+          movePaddle(line);
         }
 
       } catch (Exception e) {
@@ -149,14 +186,5 @@ public class Server {
         System.out.println(e);
       }
     }
-
-
-    synchronized private void processLine(Integer[] line) {
-      playerNum = line[0];
-      int x = line[1];
-
-      paddlePos[playerNum][1] = x;
-    }
-
   }
 }

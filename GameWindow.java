@@ -119,7 +119,12 @@ public void movePaddle(Integer[][] coords) {
 	for(int i = 1; i<coords.length; i++) {
 		int tempClientNum = coords[i][0];
 		paddles[tempClientNum].y = coords[i][1];
+		if (ball.getBounds2D().intersects(paddles[i - 1])) {
+			
+		}
 	}
+	
+	
 	repaint();
 }
 
