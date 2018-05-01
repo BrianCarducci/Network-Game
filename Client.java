@@ -23,11 +23,11 @@ public class Client implements Serializable {
 	private ObjectInputStream in = null;
 	private ObjectOutputStream out = null;
 	private GameWindow gameWindow;
-	private int clientNum;
+	private int clientNum = -1;
 
 
 	public static void main(String[] args) {
-		Client chatClient = new Client("localhost", args[0]);
+		Client chatClient = new Client(args[0], args[1]);
 		//chatClient.initGUI();
 		chatClient.run();
 		System.out.println("after run");
@@ -50,7 +50,7 @@ public class Client implements Serializable {
 			out = new ObjectOutputStream(socket.getOutputStream());
 
 			//out.println("ENTER " + clientName);
-			try{
+			/*try{
 				String line = (String) in.readObject();
 				if (line.startsWith("CLIENTNUM")) {
 					clientNum = Integer.parseInt(line.substring(line.indexOf(' ') + 1, line.length()));
@@ -59,17 +59,27 @@ public class Client implements Serializable {
 			}
 			catch (ClassNotFoundException cnfex) {
 				System.out.println(cnfex);
-			}
+			}*/
 
-
-			gameWindow = new GameWindow(out, clientNum);
 
 			while(true){
 				try {
-					Integer[][] coords = (Integer[][]) in.readObject();
-					gameWindow.movePaddle(coords);
+					Object input = in.readObject();
+					if (input instanceof String) {
+						String line = (String) input;
+						if (line.startsWith("CLIENTNUM")) {
+							clientNum = Integer.parseInt(line.substring(line.indexOf(' ') + 1, line.length()));
+							gameWindow = new GameWindow(out, clientNum);
+							System.out.println("ClientNum = " + clientNum);
+						}
+					}
 
-					System.out.println(Arrays.deepToString(coords));
+					if (input instanceof Integer[][] && clientNum != -1) {
+						Integer[][] coords = (Integer[][]) in.readObject();
+						gameWindow.movePaddle(coords);
+						System.out.println(Arrays.deepToString(coords));
+					}
+
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

@@ -1,13 +1,16 @@
-import java.awt.*;
+import javax.swing.JComponent;
 
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.geom.*;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JFrame;
 
-import java.awt.event.*;
 import java.awt.geom.*;
-import java.io.*;
-
 public class GameWindow extends JFrame {
 
 	/**
@@ -23,6 +26,8 @@ public class GameWindow extends JFrame {
 	private Ellipse2D.Double ball;
 
 	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+	BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+	Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0,0), "blank cursor");
 
 	public GameWindow(ObjectOutputStream out, int clientNumber) {
 		paddles = new Rectangle2D.Double[]{new Rectangle2D.Double(0, 200, 30, 200), new Rectangle2D.Double(854, 200, 30, 200)};
@@ -39,6 +44,8 @@ public class GameWindow extends JFrame {
 
 		add(board, BorderLayout.CENTER);
 		setVisible(true);
+
+		getContentPane().setCursor(blankCursor);
 
 
 		/*addKeyListener(new KeyListener() {
@@ -95,7 +102,7 @@ addMouseMotionListener(new MouseMotionListener() {
 		try {
 			//System.out.println("MouseX: " + e.getX() + "   MouseY: " + e.getY());
 
-			out.writeObject(new Integer[]{clientNumber, e.getY()});
+			out.writeObject(new Integer[]{clientNumber, e.getY()-26});
 			//System.out.println("Sent: Updated Y Coords");
 
 		} catch (IOException e1) {
@@ -107,9 +114,11 @@ addMouseMotionListener(new MouseMotionListener() {
 }
 
 public void movePaddle(Integer[][] coords) {
-	for(Integer[] coord : coords) {
-		int tempClientNum = coord[0];
-		paddles[tempClientNum].y = coord[1];
+	ball.x = coords[0][0];
+	ball.y = coords[0][1];
+	for(int i = 1; i<coords.length; i++) {
+		int tempClientNum = coords[i][0];
+		paddles[tempClientNum].y = coords[i][1];
 	}
 	repaint();
 }
