@@ -15,17 +15,18 @@ public class GameWindow extends JFrame {
 	*/
 	private static final long serialVersionUID = 1L;
 
-	private Ball ball;
 	private ObjectOutputStream out;
 	private int clientNumber;
 
 	private Board board;
 	private Rectangle2D.Double[] paddles;
+	private Ellipse2D.Double ball;
 
 	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
 	public GameWindow(ObjectOutputStream out, int clientNumber) {
 		paddles = new Rectangle2D.Double[]{new Rectangle2D.Double(0, 200, 30, 200), new Rectangle2D.Double(854, 200, 30, 200)};
+		ball = new Ellipse2D.Double(350,350,67,67);
 
 		this.out = out;
 		this.clientNumber = clientNumber;
@@ -130,8 +131,8 @@ private class Board extends JPanel {
 		g2.setPaint(Color.white);
 		for (Rectangle2D.Double paddle : paddles) {
 			g2.fill(paddle);
-
 		}
+		g2.fill(ball);
 
 	}
 
