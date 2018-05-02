@@ -51,78 +51,78 @@ public class Client implements Serializable {
 
 			//out.println("ENTER " + clientName);
 			/*try{
-				String line = (String) in.readObject();
-				if (line.startsWith("CLIENTNUM")) {
-					clientNum = Integer.parseInt(line.substring(line.indexOf(' ') + 1, line.length()));
-					System.out.println("ClientNum = " + clientNum);
-				}
-			}
-			catch (ClassNotFoundException cnfex) {
-				System.out.println(cnfex);
-			}*/
-
-
-			while(true){
-				try {
-					Object input = in.readObject();
-					if (input instanceof String) {
-						String line = (String) input;
-						if (line.startsWith("CLIENTNUM")) {
-							clientNum = Integer.parseInt(line.substring(line.indexOf(' ') + 1, line.length()));
-							gameWindow = new GameWindow(out, clientNum);
-							System.out.println("ClientNum = " + clientNum);
-						}
-					}
-
-					if (input instanceof Integer[][] && clientNum != -1) {
-						Integer[][] coords = (Integer[][]) in.readObject();
-						gameWindow.movePaddle(coords);
-						//System.out.println(Arrays.deepToString(coords));
-					}
-
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-			}
-
-			//out.println("EXIT");
-
-		} catch (UnknownHostException e) {
-			System.out.println("Unknown host: " + hostname);
-			System.out.println(e.getMessage());
-		} catch (IOException e) {
-			System.out.println("IO Error: Error establishing communication with server.");
-			System.out.println(e.getMessage());
-		}
-
-		try {
-			if (out != null) out.close();
-			if (in != null) in.close();
-			if (socket != null) socket.close();
-		} catch (Exception e) {
-			System.out.println("Error closing the streams.");
+			String line = (String) in.readObject();
+			if (line.startsWith("CLIENTNUM")) {
+			clientNum = Integer.parseInt(line.substring(line.indexOf(' ') + 1, line.length()));
+			System.out.println("ClientNum = " + clientNum);
 		}
 	}
+	catch (ClassNotFoundException cnfex) {
+	System.out.println(cnfex);
+}*/
 
 
-	//    private void initGUI() {
-	//    	JFrame frame = new JFrame("testy");
-	//    	frame.setVisible(true);
-	//    	frame.addKeyListener(new ReturnAction());
-	//    	frame.pack();
-	//
-	//    }
+while(true){
+	try {
+		Object input = in.readObject();
+		if (input instanceof String) {
+			String line = (String) input;
+			if (line.startsWith("CLIENTNUM")) {
+				clientNum = Integer.parseInt(line.substring(line.indexOf(' ') + 1, line.length()));
+				gameWindow = new GameWindow(out, clientNum);
+				System.out.println("ClientNum = " + clientNum);
+			}
+		}
 
-	//    private class ReturnAction extends KeyAdapter {
-	//        @Override
-	//        public void keyPressed(KeyEvent e) {
-	//            int keys = e.getKeyCode();
-	//            if (keys == KeyEvent.VK_ENTER) {
-	//                out.println("MV_LEFT 0");
-	//
-	//            }
-	//        }
-	//    }
+		if (input instanceof Integer[][] && clientNum != -1) {
+			Integer[][] coords = (Integer[][]) in.readObject();
+			gameWindow.movePaddle(coords);
+			//System.out.println(Arrays.deepToString(coords));
+		}
+
+	} catch (ClassNotFoundException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+
+}
+
+//out.println("EXIT");
+
+} catch (UnknownHostException e) {
+	System.out.println("Unknown host: " + hostname);
+	System.out.println(e.getMessage());
+} catch (IOException e) {
+	System.out.println("IO Error: Error establishing communication with server.");
+	System.out.println(e.getMessage());
+}
+
+try {
+	if (out != null) out.close();
+	if (in != null) in.close();
+	if (socket != null) socket.close();
+} catch (Exception e) {
+	System.out.println("Error closing the streams.");
+}
+}
+
+
+//    private void initGUI() {
+//    	JFrame frame = new JFrame("testy");
+//    	frame.setVisible(true);
+//    	frame.addKeyListener(new ReturnAction());
+//    	frame.pack();
+//
+//    }
+
+//    private class ReturnAction extends KeyAdapter {
+//        @Override
+//        public void keyPressed(KeyEvent e) {
+//            int keys = e.getKeyCode();
+//            if (keys == KeyEvent.VK_ENTER) {
+//                out.println("MV_LEFT 0");
+//
+//            }
+//        }
+//    }
 }

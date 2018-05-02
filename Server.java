@@ -44,159 +44,178 @@ public class Server {
         public void run() {
           while (true) {
             /*try {
-              Thread.sleep(100);
-            } catch (Exception e) {
-              System.out.println(e);
-            }*/
+            Thread.sleep(100);
+          } catch (Exception e) {
+          System.out.println(e);
+        }*/
 
-            //Connection[] conns = clients.toArray(new Connection[clients.size()]);
-              //System.out.println(conns.length);
-              synchronized(clients) {
+        //Connection[] conns = clients.toArray(new Connection[clients.size()]);
+        //System.out.println(conns.length);
+        synchronized(clients) {
 
-                if (clients.size() > 0) {
-                  int curTime0 = (int) System.currentTimeMillis();
-//                  translateBall();
-//                  checkCollision();
-                  pushGameState(); //TODO: make this work
-                  int curTime1 = (int) System.currentTimeMillis();
-                  try {
-                    Thread.sleep(1);
-                  } catch (InterruptedException intexc) {
-                    System.out.println(intexc);
-                  }
-                }
-              }
+          if (clients.size() > 0) {
+            int curTime0 = (int) System.currentTimeMillis();
+            //                  translateBall();
+            //                  checkCollision();
+            pushGameState(); //TODO: make this work
+            int curTime1 = (int) System.currentTimeMillis();
+            try {
+              Thread.sleep(1);
+            } catch (InterruptedException intexc) {
+              System.out.println(intexc);
+            }
           }
         }
-
-      }).start();
-
-      while (true) {
-        Socket clientSocket = serverSocket.accept();
-        String clientNum = String.valueOf(clients.size()+1);
-        Connection c = new Connection(clientSocket, clientNum);
-
-        synchronized(clients){
-          clients.add(c);
-          System.out.println("Clients connected: " + clients.size());
-        }
-        c.start();
-      }
-
-    } catch (Exception e) {
-      System.err.println("Error occured creating server socket: " + e.getMessage());
-    }
-  }
-
-  synchronized private void pushGameState() {
-	  // Update game state
-    moveBall();
-
-    paddlePos[0] = new Integer[]{(int) Math.round(ballPos[0]), (int) Math.round(ballPos[1])};
-
-    // Transmit game state to the clients
-    for(Connection client : clients) {
-      if(client != null && client.out != null){
-        try {
-          client.writeObject(paddlePos, true);
-
-        } catch (IOException e){
-          System.out.println(e);
-        }
-      }
-    }
-  }
-
-  private synchronized void moveBall() {
-    ballPos[0] += ballVelX;
-	  ballPos[1] += ballVelY;
-
-    /*if (ballPos[0] <= 30 && ((ballPos[1] < paddlePos[1][1]) || (ballPos[1] > paddlePos[1][1] + 200))) {
-		  ballVelX = -ballVelX;
-      //System.out.println("Offscreen UP");
-	  }*/
-    if (ballPos[0] <= 0) {
-      ballVelX = -ballVelX;
-    }
-    if (ballPos[0] >= 833) {
-      ballVelX = -ballVelX;
-    }
-	  if (ballPos[1] <= 0) {
-		  ballVelY = -ballVelY;
-      //System.out.println("Offscreen UP");
-	  }
-	  if (ballPos[1] >= 777) {
-		  ballVelY = -ballVelY;
-      //System.out.println("Offscreen DOWN");
-	  }
-
-
-  }
-
-  synchronized private void movePaddle(Integer[] line) {
-      int playerNum = line[0];
-      int x = line[1];
-
-      if(x+226 <= 900) {
-        paddlePos[playerNum][1] = x;
       }
     }
 
-  private class Connection extends Thread {
-    Socket socket;
-    public ObjectInputStream in;
-    private ObjectOutputStream out;
-    String clientNum = "";
-    public String username = "";
-    public String roomId = "0";
-    public int playerNum;
+  }).start();
 
-    public Connection(Socket socket, String clientNum) throws IOException{
-      this.socket = socket;
-      this.clientNum = clientNum;
+  while (true) {
+    Socket clientSocket = serverSocket.accept();
+    String clientNum = String.valueOf(clients.size()+1);
+    Connection c = new Connection(clientSocket, clientNum);
 
-
+    synchronized(clients){
+      clients.add(c);
+      System.out.println("Clients connected: " + clients.size());
     }
+    c.start();
+  }
 
-    public synchronized void writeObject(Object obj, boolean reset) throws IOException {
-    	if (reset) out.reset();
-    	out.writeObject(obj);
-    }
+} catch (Exception e) {
+  System.err.println("Error occured creating server socket: " + e.getMessage());
+}
+}
 
-    public void run() {
+synchronized private void pushGameState() {
+  // Update game state
+  moveBall();
+
+  paddlePos[0] = new Integer[]{(int) Math.round(ballPos[0]), (int) Math.round(ballPos[1])};
+
+  // Transmit game state to the clients
+  for(Connection client : clients) {
+    if(client != null && client.out != null){
       try {
-        out = new ObjectOutputStream(socket.getOutputStream());
-        in = new ObjectInputStream(socket.getInputStream());
+        client.writeObject(paddlePos, true);
 
-        writeObject(new String("CLIENTNUM " + clientNum), false);
-
-
-        while (true) {
-          //pushGameState();
-          Integer[] line = (Integer[]) in.readObject();
-          //System.out.println("read mouse input");
-          movePaddle(line);
-        }
-
-      } catch (Exception e) {
-        System.out.println("Error connecting, Terminating. " + e.getMessage());
-      }finally{
-        closeResources();
-      }
-    }
-
-    private void closeResources(){
-      try{
-        synchronized(clients){
-          clients.remove(this);
-          System.out.println("Clients connected: " + clients.size());
-        }
-        if (in != null) in.close();
-        if (out != null) out.close();
-        if (socket != null) socket.close();
-      }catch(IOException e){
+      } catch (IOException e){
         System.out.println(e);
       }
     }
   }
+}
+
+private synchronized void moveBall() {
+  ballPos[0] += ballVelX;
+  ballPos[1] += ballVelY;
+
+  if (ballPos[0] <= 30 && ((ballPos[1] > paddlePos[1][1]) && (ballPos[1] < paddlePos[1][1] + 200))) {
+    ballVelX = -ballVelX;
+    //System.out.println("Offscreen UP");
+  }
+
+  if (ballPos[0] >= 803 && ((ballPos[1] > paddlePos[2][1]) && (ballPos[1] < paddlePos[2][1] + 200))) {
+    ballVelX = -ballVelX;
+    //System.out.println("Offscreen UP");
+  }
+
+  /*
+  if (ballPos[0] <= 0) {
+  ballVelX = -ballVelX;
+}
+if (ballPos[0] >= 833) {
+ballVelX = -ballVelX;
+}
+*/
+
+if (ballPos[1] <= 0) {
+  ballVelY = -ballVelY;
+  //System.out.println("Offscreen UP");
+}
+if (ballPos[1] >= 777) {
+  ballVelY = -ballVelY;
+  //System.out.println("Offscreen DOWN");
+}
+
+
+}
+
+synchronized private void movePaddle(Integer[] line) {
+  int playerNum = line[0];
+  int y = line[1];
+
+  if(y <= 662) { //Check if offscreen on the bottom
+    paddlePos[playerNum][1] = y;
+  }
+}
+
+private class Connection extends Thread {
+  Socket socket;
+  public ObjectInputStream in;
+  private ObjectOutputStream out;
+  String clientNum = "";
+  public String username = "";
+  public String roomId = "0";
+  public int playerNum;
+
+  public Connection(Socket socket, String clientNum) throws IOException{
+    this.socket = socket;
+    this.clientNum = clientNum;
+
+
+  }
+
+  public synchronized void writeObject(Object obj, boolean reset) throws IOException {
+    if (reset) out.reset();
+    out.writeObject(obj);
+  }
+
+  public void run() {
+    try {
+      out = new ObjectOutputStream(socket.getOutputStream());
+      in = new ObjectInputStream(socket.getInputStream());
+
+      writeObject(new String("CLIENTNUM " + clientNum), false);
+
+
+      while (true) {
+        Object input = in.readObject();
+
+        if (input instanceof Integer[]) {
+          Integer[] newCoord = (Integer[]) input;
+          movePaddle(newCoord);
+        }
+
+        if (input instanceof String) {
+          String inputString = (String) input;
+          if (inputString.startsWith("RESET")) {
+            ballPos[0] = 350.0;
+            ballPos[1] = 350.0;
+          }
+        }
+      }
+
+    } catch (Exception e) {
+      System.out.println("Error connecting, Terminating. " + e.getMessage());
+    }finally{
+      closeResources();
+    }
+  }
+
+  private void closeResources(){
+    try{
+      synchronized(clients){
+        clients.remove(this);
+        System.out.println("Clients connected: " + clients.size());
+      }
+      if (in != null) in.close();
+      if (out != null) out.close();
+      if (socket != null) socket.close();
+    }catch(IOException e){
+      System.out.println(e);
+    }
+  }
+}
 }

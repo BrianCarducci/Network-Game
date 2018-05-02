@@ -89,6 +89,26 @@ public void keyTyped(KeyEvent e) {
 
 }); */
 
+addKeyListener(new KeyListener() {
+	public void keyPressed(KeyEvent e) {
+		// TODO Auto-generated method stub
+		try {
+			if (e.getKeyCode() == KeyEvent.VK_R) {
+				out.writeObject(new String("RESET"));
+				System.out.println("Sent: RESET");
+			}
+		} catch (IOException err) {
+			System.out.println(err);
+		}
+	}
+
+	public void keyReleased(KeyEvent e) {
+	}
+	
+	public void keyTyped(KeyEvent e) {
+	}
+});
+
 addMouseMotionListener(new MouseMotionListener() {
 
 	@Override
@@ -102,7 +122,7 @@ addMouseMotionListener(new MouseMotionListener() {
 		try {
 			//System.out.println("MouseX: " + e.getX() + "   MouseY: " + e.getY());
 
-			out.writeObject(new Integer[]{clientNumber, e.getY()-26});
+			out.writeObject(new Integer[]{clientNumber, e.getY()-32});
 			//System.out.println("Sent: Updated Y Coords");
 
 		} catch (IOException e1) {
