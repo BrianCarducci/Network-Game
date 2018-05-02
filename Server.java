@@ -120,13 +120,13 @@ private synchronized void moveBall() {
     ballVelX = -ballVelX;
     //System.out.println("Offscreen UP");
   }
-  
+
   if (ballPos[1] <= 35 && ((ballPos[0] > paddlePos[3][1]) && (ballPos[0] < paddlePos[3][1] + 200))) {
 	    ballVelY = -ballVelY;
 	    //System.out.println("Offscreen UP");
 	  }
 
-	  if (ballPos[1] >= 800 && ((ballPos[0] > paddlePos[4][1]) && (ballPos[1] < paddlePos[4][1] + 200))) {
+	  if (ballPos[1] >= 750 && ((ballPos[0] > paddlePos[4][1]) && (ballPos[0] < paddlePos[4][1] + 200))) {
 	    ballVelY = -ballVelY;
 	    //System.out.println("Offscreen UP");
 	  }
@@ -154,7 +154,7 @@ ballVelX = -ballVelX;
 
 synchronized private void movePaddle(Integer[] line) {
   int playerNum = line[0];
-  System.out.println(playerNum);
+  //System.out.println(playerNum);
   int y = line[1];
 
   if(y <= 662) { //Check if offscreen on the bottom
@@ -196,7 +196,7 @@ private class Connection extends Thread {
 
         if (input instanceof Integer[]) {
           Integer[] newCoord = (Integer[]) input;
-          System.out.println(Arrays.deepToString(newCoord));
+          //System.out.println(Arrays.deepToString(newCoord));
           movePaddle(newCoord);
         }
 
