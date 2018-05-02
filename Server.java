@@ -25,8 +25,10 @@ public class Server {
   private final List<String> usernames = new ArrayList<>();
   //private final Integer[][] paddlePos = {{0,200}, {1,200}, {2,400}, {3, 400}}; //Each entry is [clientNum, <X or Y>] , where x or y depends on which client. 0,1 = y, 2,3 = x
   private final Integer[][] paddlePos = {{350,350}, {0,200}, {1,200}}; //Each entry is [clientNum, <X or Y>] , where x or y depends on which client. 0,1 = y, 2,3 = x
-  private double angle = 50;
-  
+  private final Double[] ballPos = new Double[]{Double.valueOf(paddlePos[0][0]), Double.valueOf(paddlePos[0][1])};
+  private Double ballVelY = Math.random();
+  private Double ballVelX = Math.sqrt(1-ballVelY*ballVelY);
+
   public static void main(String[] args) {
     Server chatServer = new Server();
     chatServer.run();
@@ -50,7 +52,7 @@ public class Server {
             //Connection[] conns = clients.toArray(new Connection[clients.size()]);
               //System.out.println(conns.length);
               synchronized(clients) {
-        
+
                 if (clients.size() > 0) {
                   int curTime0 = (int) System.currentTimeMillis();
 //                  translateBall();
@@ -58,7 +60,7 @@ public class Server {
                   pushGameState(); //TODO: make this work
                   int curTime1 = (int) System.currentTimeMillis();
                   try {
-                    Thread.sleep(curTime1 - curTime0);
+                    Thread.sleep(1);
                   } catch (InterruptedException intexc) {
                     System.out.println(intexc);
                   }
@@ -88,55 +90,56 @@ public class Server {
 
   synchronized private void pushGameState() {
 	  // Update game state
-    Random random = new Random();
-    boolean flag = random.nextBoolean();
-    translateBall();
-    checkCollision();
+    moveBall();
+
+    paddlePos[0] = new Integer[]{(int) Math.round(ballPos[0]), (int) Math.round(ballPos[1])};
 
     // Transmit game state to the clients
     for(Connection client : clients) {
       if(client != null && client.out != null){
         try {
           client.writeObject(paddlePos, true);
-         
+
         } catch (IOException e){
           System.out.println(e);
         }
       }
     }
   }
-  
-  private synchronized void checkCollision() {
-	  
-	  Integer[] ballPos = paddlePos[0];
-	  
+
+  private synchronized void moveBall() {
+    ballPos[0] += ballVelX;
+	  ballPos[1] += ballVelY;
+
+    /*if (ballPos[0] <= 30 && ((ballPos[1] < paddlePos[1][1]) || (ballPos[1] > paddlePos[1][1] + 200))) {
+		  ballVelX = -ballVelX;
+      //System.out.println("Offscreen UP");
+	  }*/
+    if (ballPos[0] <= 0) {
+      ballVelX = -ballVelX;
+    }
+    if (ballPos[0] >= 833) {
+      ballVelX = -ballVelX;
+    }
 	  if (ballPos[1] <= 0) {
-		  angle = angle - 180;
+		  ballVelY = -ballVelY;
+      //System.out.println("Offscreen UP");
 	  }
 	  if (ballPos[1] >= 777) {
-		  angle = angle - 180;
+		  ballVelY = -ballVelY;
+      //System.out.println("Offscreen DOWN");
 	  }
-	  if (ballPos[0] <= 0) {
-		  angle = angle - 180;
-	  }
-	  if (ballPos[0] >= 833) {
-		  angle = angle - 180;
-	  }
-	  
-		  
-  }
-  
-  private synchronized void translateBall() {
-	  paddlePos[0][0] += (int) Math.cos(Math.toRadians(angle));
-	  paddlePos[0][1] += (int) Math.sin(Math.toRadians(angle));
-	  System.out.println(Math.round(Math.sin(Math.toRadians(angle))));
+
+
   }
 
   synchronized private void movePaddle(Integer[] line) {
       int playerNum = line[0];
       int x = line[1];
 
-      paddlePos[playerNum][1] = x;
+      if(x+226 <= 900) {
+        paddlePos[playerNum][1] = x;
+      }
     }
 
   private class Connection extends Thread {
@@ -159,7 +162,7 @@ public class Server {
     	if (reset) out.reset();
     	out.writeObject(obj);
     }
-    
+
     public void run() {
       try {
         out = new ObjectOutputStream(socket.getOutputStream());
@@ -171,7 +174,7 @@ public class Server {
         while (true) {
           //pushGameState();
           Integer[] line = (Integer[]) in.readObject();
-          System.out.println("read mouse input");
+          //System.out.println("read mouse input");
           movePaddle(line);
         }
 
