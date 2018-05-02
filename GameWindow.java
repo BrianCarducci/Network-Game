@@ -30,7 +30,7 @@ public class GameWindow extends JFrame {
 	Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0,0), "blank cursor");
 
 	public GameWindow(ObjectOutputStream out, int clientNumber) {
-		paddles = new Rectangle2D.Double[]{new Rectangle2D.Double(5, 200, 30, 200), new Rectangle2D.Double(854, 200, 30, 200),
+		paddles = new Rectangle2D.Double[]{new Rectangle2D.Double(16, 200, 30, 200), new Rectangle2D.Double(854, 200, 30, 200),
 				new Rectangle2D.Double(200, 5, 200, 30), new Rectangle2D.Double(200, 800, 200, 30)};
 		ball = new Ellipse2D.Double(350,350,67,67);
 
@@ -123,7 +123,12 @@ addMouseMotionListener(new MouseMotionListener() {
 		try {
 			//System.out.println("MouseX: " + e.getX() + "   MouseY: " + e.getY());
 
-			out.writeObject(new Integer[]{clientNumber, e.getY()-32});
+			if (clientNumber == 1 || clientNumber == 2) {
+				out.writeObject(new Integer[]{clientNumber, e.getY()-32});
+			}
+			if (clientNumber == 3 || clientNumber == 4) {
+				out.writeObject(new Integer[]{clientNumber, e.getX()-32});
+			}
 			//System.out.println("Sent: Updated Y Coords");
 
 		} catch (IOException e1) {
@@ -139,7 +144,12 @@ public void movePaddle(Integer[][] coords) {
 	ball.y = coords[0][1];
 	for(int i = 1; i<coords.length; i++) {
 		int tempClientNum = coords[i][0];
-		paddles[tempClientNum].y = coords[i][1];
+		if (tempClientNum == 0 || tempClientNum == 1) {
+			paddles[tempClientNum].y = coords[i][1];
+		}
+		if (tempClientNum == 2 || tempClientNum == 3) {
+			paddles[tempClientNum].x = coords[i][1];
+		}
 	}
 
 

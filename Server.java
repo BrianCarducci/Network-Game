@@ -24,7 +24,7 @@ public class Server {
   private final List<Connection> clients = new ArrayList<>();
   private final List<String> usernames = new ArrayList<>();
   //private final Integer[][] paddlePos = {{0,200}, {1,200}, {2,400}, {3, 400}}; //Each entry is [clientNum, <X or Y>] , where x or y depends on which client. 0,1 = y, 2,3 = x
-  private final Integer[][] paddlePos = {{350,350}, {0,200}, {1,200}}; //Each entry is [clientNum, <X or Y>] , where x or y depends on which client. 0,1 = y, 2,3 = x
+  private final Integer[][] paddlePos = {{350,350}, {0,200}, {1,200}, {2,200}, {3,200}}; //Each entry is [clientNum, <X or Y>] , where x or y depends on which client. 0,1 = y, 2,3 = x
   private final Double[] ballPos = new Double[]{Double.valueOf(paddlePos[0][0]), Double.valueOf(paddlePos[0][1])};
   private Double ballVelY = Math.sqrt(2.0)*Math.random() - Math.sqrt(2.0)/2.0;
   private Double ballVelX = Math.sqrt(1-ballVelY*ballVelY);
@@ -120,6 +120,16 @@ private synchronized void moveBall() {
     ballVelX = -ballVelX;
     //System.out.println("Offscreen UP");
   }
+  
+  if (ballPos[1] <= 35 && ((ballPos[0] > paddlePos[3][1]) && (ballPos[0] < paddlePos[3][1] + 200))) {
+	    ballVelY = -ballVelY;
+	    //System.out.println("Offscreen UP");
+	  }
+
+	  if (ballPos[1] >= 800 && ((ballPos[0] > paddlePos[4][1]) && (ballPos[1] < paddlePos[4][1] + 200))) {
+	    ballVelY = -ballVelY;
+	    //System.out.println("Offscreen UP");
+	  }
 
   /*
   if (ballPos[0] <= 0) {
@@ -130,20 +140,21 @@ ballVelX = -ballVelX;
 }
 */
 
-if (ballPos[1] <= 0) {
-  ballVelY = -ballVelY;
-  //System.out.println("Offscreen UP");
-}
-if (ballPos[1] >= 777) {
-  ballVelY = -ballVelY;
-  //System.out.println("Offscreen DOWN");
-}
+//if (ballPos[1] <= 0) {
+//  ballVelY = -ballVelY;
+//  //System.out.println("Offscreen UP");
+//}
+//if (ballPos[1] >= 777) {
+//  ballVelY = -ballVelY;
+//  //System.out.println("Offscreen DOWN");
+//}
 
 
 }
 
 synchronized private void movePaddle(Integer[] line) {
   int playerNum = line[0];
+  System.out.println(playerNum);
   int y = line[1];
 
   if(y <= 662) { //Check if offscreen on the bottom
@@ -177,7 +188,7 @@ private class Connection extends Thread {
       out = new ObjectOutputStream(socket.getOutputStream());
       in = new ObjectInputStream(socket.getInputStream());
 
-      writeObject(new String("CLIENTNUM " + clientNum), false);
+      writeObject(new String("CLIENTNUM " + clientNum), true);
 
 
       while (true) {
@@ -185,6 +196,7 @@ private class Connection extends Thread {
 
         if (input instanceof Integer[]) {
           Integer[] newCoord = (Integer[]) input;
+          System.out.println(Arrays.deepToString(newCoord));
           movePaddle(newCoord);
         }
 
