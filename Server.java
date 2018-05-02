@@ -26,7 +26,7 @@ public class Server {
   //private final Integer[][] paddlePos = {{0,200}, {1,200}, {2,400}, {3, 400}}; //Each entry is [clientNum, <X or Y>] , where x or y depends on which client. 0,1 = y, 2,3 = x
   private final Integer[][] paddlePos = {{350,350}, {0,200}, {1,200}}; //Each entry is [clientNum, <X or Y>] , where x or y depends on which client. 0,1 = y, 2,3 = x
   private final Double[] ballPos = new Double[]{Double.valueOf(paddlePos[0][0]), Double.valueOf(paddlePos[0][1])};
-  private Double ballVelY = Math.random();
+  private Double ballVelY = Math.sqrt(2.0)*Math.random() - Math.sqrt(2.0)/2.0;
   private Double ballVelX = Math.sqrt(1-ballVelY*ballVelY);
 
   public static void main(String[] args) {
