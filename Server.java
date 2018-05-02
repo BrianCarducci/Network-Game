@@ -111,7 +111,7 @@ private synchronized void moveBall() {
   ballPos[0] += ballVelX;
   ballPos[1] += ballVelY;
 
-  if (ballPos[0] <= 30 && ((ballPos[1] > paddlePos[1][1]) && (ballPos[1] < paddlePos[1][1] + 200))) {
+  if (ballPos[0] <= 35 && ((ballPos[1] > paddlePos[1][1]) && (ballPos[1] < paddlePos[1][1] + 200))) {
     ballVelX = -ballVelX;
     //System.out.println("Offscreen UP");
   }

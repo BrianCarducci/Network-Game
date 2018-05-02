@@ -30,7 +30,8 @@ public class GameWindow extends JFrame {
 	Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0,0), "blank cursor");
 
 	public GameWindow(ObjectOutputStream out, int clientNumber) {
-		paddles = new Rectangle2D.Double[]{new Rectangle2D.Double(0, 200, 30, 200), new Rectangle2D.Double(854, 200, 30, 200)};
+		paddles = new Rectangle2D.Double[]{new Rectangle2D.Double(5, 200, 30, 200), new Rectangle2D.Double(854, 200, 30, 200),
+				new Rectangle2D.Double(200, 5, 200, 30), new Rectangle2D.Double(200, 800, 200, 30)};
 		ball = new Ellipse2D.Double(350,350,67,67);
 
 		this.out = out;
