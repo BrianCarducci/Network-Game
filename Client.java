@@ -70,7 +70,9 @@ while(true){
 			if (line.startsWith("CLIENTNUM")) {
 				clientNum = Integer.parseInt(line.substring(line.indexOf(' ') + 1, line.length()));
 				gameWindow = new GameWindow(out, clientNum);
-				System.out.println("ClientNum = " + clientNum);
+				out.writeObject(new String("NAME " + clientName));			}
+			if (line.startsWith("SCORE")) {
+				gameWindow.setScores(line.substring(line.indexOf(' ') + 1, line.length()).split(","));
 			}
 		}
 

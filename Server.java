@@ -31,7 +31,7 @@ public class Server {
   private final Random random = new Random();
   private Double ballVelY = -2.0*Math.random() + 1;
   private Double ballVelX = random.nextBoolean() ? Math.sqrt(1-ballVelY*ballVelY) : -1*Math.sqrt(1-ballVelY*ballVelY);
-
+  private String lastPlayerToHit = "0";
   public static void main(String[] args) {
     Server chatServer = new Server();
     chatServer.run();
@@ -128,35 +128,60 @@ private synchronized void moveBall() {
   if(ballPos[0] <= -15 || ballPos[0] >= 915 || ballPos[1] <= -15 || ballPos[1] >= 915) {
     ballPos[0] = 350.0;
     ballPos[1] = 350.0;
+
+    if(lastPlayerToHit.equals("0")){
+      System.out.println("No Winner");
+    }else{
+      synchronized(players){
+        String score = "";
+        for(Connection player : players) {
+          if(player != null && player.out != null){
+            if(player.clientNum.equals(lastPlayerToHit)) player.score++;
+            if(!score.equals("")) score += ",";
+            score = score + player.username + " " + player.score;
+          }
+        }
+
+        for(Connection player : players) {
+            if(player != null && player.out != null){
+              try {
+                player.writeObject(new String("SCORE " + score), true);
+              } catch (IOException e){
+                System.out.println(e);
+              }
+            }
+        }
+      }
+    }
+
+    lastPlayerToHit = "0";
     ballVelY = -2.0*Math.random() + 1;
     ballVelX = random.nextBoolean() ? Math.sqrt(1-ballVelY*ballVelY) : -1*Math.sqrt(1-ballVelY*ballVelY);
 
-    try {
-      Thread.sleep(1000);
-    }
-    catch (InterruptedException e) {
-      System.out.println(e);
-    }
   }
 
   if (ballPos[0] <= 35 && ((ballPos[1] > paddlePos[1][1] -26) && (ballPos[1] < paddlePos[1][1] + 200))) {
     ballVelX = -ballVelX;
-    //System.out.println("Offscreen UP");
+    lastPlayerToHit = "1";
   }
 
   if (ballPos[0] >= 803 && ((ballPos[1] > paddlePos[2][1] -26) && (ballPos[1] < paddlePos[2][1] + 200))) {
     ballVelX = -ballVelX;
     //System.out.println("Offscreen UP");
+    lastPlayerToHit = "2";
+
   }
 
   if (ballPos[1] <= 35 && ((ballPos[0] > paddlePos[3][1]) && (ballPos[0] < paddlePos[3][1] + 200))) {
     ballVelY = -ballVelY;
     //System.out.println("Offscreen UP");
+    lastPlayerToHit = "3";
   }
 
   if (ballPos[1] >= 750 && ((ballPos[0] > paddlePos[4][1]) && (ballPos[0] < paddlePos[4][1] + 200))) {
     ballVelY = -ballVelY;
     //System.out.println("Offscreen UP");
+    lastPlayerToHit = "4";
   }
 
   /*
@@ -198,6 +223,7 @@ private class Connection extends Thread {
   public String username = "";
   public String roomId = "0";
   public int playerNum;
+  public int score = 0;
 
   public Connection(Socket socket, String clientNum) throws IOException{
     this.socket = socket;
@@ -235,6 +261,10 @@ private class Connection extends Thread {
             ballPos[1] = 350.0;
             ballVelY = -2.0*Math.random() + 1;
             ballVelX = random.nextBoolean() ? Math.sqrt(1-ballVelY*ballVelY) : -1*Math.sqrt(1-ballVelY*ballVelY);
+          }
+
+          if (inputString.startsWith("NAME")) {
+            this.username = inputString.substring(inputString.indexOf(' ') + 1, inputString.length());
           }
 
           if (inputString.startsWith("SPECTATOR")) {

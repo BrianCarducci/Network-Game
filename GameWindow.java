@@ -9,6 +9,7 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JFrame;
+import javax.swing.JTextArea;
 
 import java.awt.geom.*;
 public class GameWindow extends JFrame {
@@ -24,6 +25,7 @@ public class GameWindow extends JFrame {
 	private Board board;
 	private Rectangle2D.Double[] paddles;
 	private Ellipse2D.Double ball;
+	private JTextArea scoreArea = new JTextArea();
 
 	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 	BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
@@ -59,7 +61,14 @@ public class GameWindow extends JFrame {
 				setSize(900,900);
 
 				board = new Board();
+				board.setLayout(null);
+				scoreArea.setEditable(false);
+				scoreArea.setOpaque(false);
+				scoreArea.setSize(100,100);
+				scoreArea.setLocation(20,20);
+				scoreArea.setForeground(Color.MAGENTA);
 
+				board.add(scoreArea);
 				add(board, BorderLayout.CENTER);
 				setVisible(true);
 
@@ -172,6 +181,16 @@ public void movePaddle(Integer[][] coords) {
 
 
 	repaint();
+}
+
+public void setScores(String[] scores){
+	String s = "";
+
+	for(String score: scores){
+		s += score + "\n";
+	}
+
+	scoreArea.setText(s);
 }
 
 private class Board extends JPanel {
