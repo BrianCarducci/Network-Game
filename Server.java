@@ -27,8 +27,10 @@ public class Server {
   //private final Integer[][] paddlePos = {{0,200}, {1,200}, {2,400}, {3, 400}}; //Each entry is [clientNum, <X or Y>] , where x or y depends on which client. 0,1 = y, 2,3 = x
   private final Integer[][] paddlePos = {{350,350}, {0,200}, {1,200}, {2,200}, {3,200}}; //Each entry is [clientNum, <X or Y>] , where x or y depends on which client. 0,1 = y, 2,3 = x
   private final Double[] ballPos = new Double[]{Double.valueOf(paddlePos[0][0]), Double.valueOf(paddlePos[0][1])};
-  private Double ballVelY = Math.sqrt(2.0)*Math.random() - Math.sqrt(2.0)/2.0;
-  private Double ballVelX = Math.sqrt(1-ballVelY*ballVelY);
+
+  private final Random random = new Random();
+  private Double ballVelY = -2.0*Math.random() + 1;
+  private Double ballVelX = random.nextBoolean() ? Math.sqrt(1-ballVelY*ballVelY) : -1*Math.sqrt(1-ballVelY*ballVelY);
 
   public static void main(String[] args) {
     Server chatServer = new Server();
@@ -123,12 +125,26 @@ private synchronized void moveBall() {
   ballPos[0] += ballVelX;
   ballPos[1] += ballVelY;
 
-  if (ballPos[0] <= 35 && ((ballPos[1] > paddlePos[1][1]) && (ballPos[1] < paddlePos[1][1] + 200))) {
+  if(ballPos[0] <= -15 || ballPos[0] >= 915 || ballPos[1] <= -15 || ballPos[1] >= 915) {
+    ballPos[0] = 350.0;
+    ballPos[1] = 350.0;
+    ballVelY = -2.0*Math.random() + 1;
+    ballVelX = random.nextBoolean() ? Math.sqrt(1-ballVelY*ballVelY) : -1*Math.sqrt(1-ballVelY*ballVelY);
+
+    try {
+      Thread.sleep(1000);
+    }
+    catch (InterruptedException e) {
+      System.out.println(e);
+    }
+  }
+
+  if (ballPos[0] <= 35 && ((ballPos[1] > paddlePos[1][1] -26) && (ballPos[1] < paddlePos[1][1] + 200))) {
     ballVelX = -ballVelX;
     //System.out.println("Offscreen UP");
   }
 
-  if (ballPos[0] >= 803 && ((ballPos[1] > paddlePos[2][1]) && (ballPos[1] < paddlePos[2][1] + 200))) {
+  if (ballPos[0] >= 803 && ((ballPos[1] > paddlePos[2][1] -26) && (ballPos[1] < paddlePos[2][1] + 200))) {
     ballVelX = -ballVelX;
     //System.out.println("Offscreen UP");
   }
@@ -217,8 +233,8 @@ private class Connection extends Thread {
           if (inputString.startsWith("RESET")) {
             ballPos[0] = 350.0;
             ballPos[1] = 350.0;
-            ballVelY = Math.sqrt(2.0)*Math.random() - Math.sqrt(2.0)/2.0;
-            ballVelX = Math.sqrt(1-ballVelY*ballVelY);
+            ballVelY = -2.0*Math.random() + 1;
+            ballVelX = random.nextBoolean() ? Math.sqrt(1-ballVelY*ballVelY) : -1*Math.sqrt(1-ballVelY*ballVelY);
           }
 
           if (inputString.startsWith("SPECTATOR")) {
