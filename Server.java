@@ -21,7 +21,8 @@ import java.lang.*;
 
 public class Server {
   private static final int DEFAULT_PORT = 1518;
-  private final List<Connection> clients = new ArrayList<>();
+  private final List<Connection> players = new ArrayList<>();
+  private final List<Connection> spectators = new ArrayList<>();
   private final List<String> usernames = new ArrayList<>();
   //private final Integer[][] paddlePos = {{0,200}, {1,200}, {2,400}, {3, 400}}; //Each entry is [clientNum, <X or Y>] , where x or y depends on which client. 0,1 = y, 2,3 = x
   private final Integer[][] paddlePos = {{350,350}, {0,200}, {1,200}, {2,200}, {3,200}}; //Each entry is [clientNum, <X or Y>] , where x or y depends on which client. 0,1 = y, 2,3 = x
@@ -49,11 +50,11 @@ public class Server {
           System.out.println(e);
         }*/
 
-        //Connection[] conns = clients.toArray(new Connection[clients.size()]);
+        //Connection[] conns = players.toArray(new Connection[players.size()]);
         //System.out.println(conns.length);
-        synchronized(clients) {
+        synchronized(players) {
 
-          if (clients.size() > 0) {
+          if (players.size() > 0) {
             int curTime0 = (int) System.currentTimeMillis();
             //                  translateBall();
             //                  checkCollision();
@@ -73,12 +74,12 @@ public class Server {
 
   while (true) {
     Socket clientSocket = serverSocket.accept();
-    String clientNum = String.valueOf(clients.size()+1);
+    String clientNum = String.valueOf(players.size()+1);
     Connection c = new Connection(clientSocket, clientNum);
 
-    synchronized(clients){
-      clients.add(c);
-      System.out.println("Clients connected: " + clients.size());
+    synchronized(players){
+      players.add(c);
+      System.out.println("Clients connected: " + players.size());
     }
     c.start();
   }
@@ -94,11 +95,22 @@ synchronized private void pushGameState() {
 
   paddlePos[0] = new Integer[]{(int) Math.round(ballPos[0]), (int) Math.round(ballPos[1])};
 
-  // Transmit game state to the clients
-  for(Connection client : clients) {
-    if(client != null && client.out != null){
+  // Transmit game state to the players
+  for(Connection player : players) {
+    if(player != null && player.out != null){
       try {
-        client.writeObject(paddlePos, true);
+        player.writeObject(paddlePos, true);
+
+      } catch (IOException e){
+        System.out.println(e);
+      }
+    }
+  }
+
+  for(Connection spectator : spectators) {
+    if(spectator != null && spectator.out != null){
+      try {
+        spectator.writeObject(paddlePos, true);
 
       } catch (IOException e){
         System.out.println(e);
@@ -122,14 +134,14 @@ private synchronized void moveBall() {
   }
 
   if (ballPos[1] <= 35 && ((ballPos[0] > paddlePos[3][1]) && (ballPos[0] < paddlePos[3][1] + 200))) {
-	    ballVelY = -ballVelY;
-	    //System.out.println("Offscreen UP");
-	  }
+    ballVelY = -ballVelY;
+    //System.out.println("Offscreen UP");
+  }
 
-	  if (ballPos[1] >= 750 && ((ballPos[0] > paddlePos[4][1]) && (ballPos[0] < paddlePos[4][1] + 200))) {
-	    ballVelY = -ballVelY;
-	    //System.out.println("Offscreen UP");
-	  }
+  if (ballPos[1] >= 750 && ((ballPos[0] > paddlePos[4][1]) && (ballPos[0] < paddlePos[4][1] + 200))) {
+    ballVelY = -ballVelY;
+    //System.out.println("Offscreen UP");
+  }
 
   /*
   if (ballPos[0] <= 0) {
@@ -205,6 +217,13 @@ private class Connection extends Thread {
           if (inputString.startsWith("RESET")) {
             ballPos[0] = 350.0;
             ballPos[1] = 350.0;
+            ballVelY = Math.sqrt(2.0)*Math.random() - Math.sqrt(2.0)/2.0;
+            ballVelX = Math.sqrt(1-ballVelY*ballVelY);
+          }
+
+          if (inputString.startsWith("SPECTATOR")) {
+            spectators.add(this);
+            players.remove(this);
           }
         }
       }
@@ -218,9 +237,9 @@ private class Connection extends Thread {
 
   private void closeResources(){
     try{
-      synchronized(clients){
-        clients.remove(this);
-        System.out.println("Clients connected: " + clients.size());
+      synchronized(players){
+        players.remove(this);
+        System.out.println("players connected: " + players.size());
       }
       if (in != null) in.close();
       if (out != null) out.close();

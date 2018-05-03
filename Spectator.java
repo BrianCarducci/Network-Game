@@ -13,31 +13,31 @@ import java.awt.*;
 import java.awt.event.*;
 
 
-public class Client implements Serializable {
+public class Spectator implements Serializable {
 	//private static final long serialVersionUID = 8564362918537326616L;
 	private final int IFW = JComponent.WHEN_IN_FOCUSED_WINDOW;
 	private static final int port = 1518;
 	private String hostname;
-	private String clientName;
+	private String specName;
 	private Socket socket = null;
 	private ObjectInputStream in = null;
 	private ObjectOutputStream out = null;
 	private GameWindow gameWindow;
-	private int clientNum = -1;
+	private int specNum = -1;
 
 
 	public static void main(String[] args) {
-		Client chatClient = new Client(args[0], args[1]);
+		Spectator chatSpec = new Spectator(args[0], args[1]);
 		//chatClient.initGUI();
-		chatClient.run();
+		chatSpec.run();
 		System.out.println("after run");
 
 
 	}
 
-	public Client(String hostname, String clientName) {
+	public Spectator(String hostname, String specName) {
 		this.hostname = hostname;
-		this.clientName = clientName;
+		this.specName = specName;
 
 
 	}
@@ -48,6 +48,9 @@ public class Client implements Serializable {
 			socket = new Socket(hostname, port);
 			in = new ObjectInputStream(socket.getInputStream());
 			out = new ObjectOutputStream(socket.getOutputStream());
+
+			out.writeObject(new String("SPECTATOR"));
+			gameWindow = new GameWindow();
 
 			//out.println("ENTER " + clientName);
 			/*try{
@@ -65,17 +68,10 @@ public class Client implements Serializable {
 while(true){
 	try {
 		Object input = in.readObject();
-		if (input instanceof String) {
-			String line = (String) input;
-			if (line.startsWith("CLIENTNUM")) {
-				clientNum = Integer.parseInt(line.substring(line.indexOf(' ') + 1, line.length()));
-				gameWindow = new GameWindow(out, clientNum);
-				System.out.println("ClientNum = " + clientNum);
-			}
-		}
 
-		if (input instanceof Integer[][] && clientNum != -1) {
+		if (input instanceof Integer[][]) {
 			Integer[][] coords = (Integer[][]) input;
+
 			gameWindow.movePaddle(coords);
 			//System.out.println(Arrays.deepToString(coords));
 		}

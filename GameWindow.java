@@ -29,47 +29,64 @@ public class GameWindow extends JFrame {
 	BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
 	Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0,0), "blank cursor");
 
-	public GameWindow(ObjectOutputStream out, int clientNumber) {
+	public GameWindow() {
 		paddles = new Rectangle2D.Double[]{new Rectangle2D.Double(16, 200, 30, 200), new Rectangle2D.Double(854, 200, 30, 200),
+			new Rectangle2D.Double(200, 5, 200, 30), new Rectangle2D.Double(200, 800, 200, 30)};
+			ball = new Ellipse2D.Double(350,350,67,67);
+
+			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			setResizable(false);
+			setSize(900,900);
+
+			board = new Board();
+
+			add(board, BorderLayout.CENTER);
+			setVisible(true);
+
+			getContentPane().setCursor(blankCursor);
+		}
+
+		public GameWindow(ObjectOutputStream out, int clientNumber) {
+			paddles = new Rectangle2D.Double[]{new Rectangle2D.Double(16, 200, 30, 200), new Rectangle2D.Double(854, 200, 30, 200),
 				new Rectangle2D.Double(200, 5, 200, 30), new Rectangle2D.Double(200, 800, 200, 30)};
-		ball = new Ellipse2D.Double(350,350,67,67);
+				ball = new Ellipse2D.Double(350,350,67,67);
 
-		this.out = out;
-		this.clientNumber = clientNumber;
+				this.out = out;
+				this.clientNumber = clientNumber;
 
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setResizable(false);
-		setSize(900,900);
+				setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				setResizable(false);
+				setSize(900,900);
 
-		board = new Board();
+				board = new Board();
 
-		add(board, BorderLayout.CENTER);
-		setVisible(true);
+				add(board, BorderLayout.CENTER);
+				setVisible(true);
 
-		getContentPane().setCursor(blankCursor);
+				getContentPane().setCursor(blankCursor);
 
 
-		/*addKeyListener(new KeyListener() {
+				/*addKeyListener(new KeyListener() {
 
-		@Override
-		public void keyPressed(KeyEvent e) {
-		// TODO Auto-generated method stub
-		try {
-		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-		out.writeObject({e.getX(), e.getY()}); //fak
-		System.out.println("Sent: " + MV_LEFT);
+				@Override
+				public void keyPressed(KeyEvent e) {
+				// TODO Auto-generated method stub
+				try {
+				if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+				out.writeObject({e.getX(), e.getY()}); //fak
+				System.out.println("Sent: " + MV_LEFT);
+			}
+			if (e.getKeyCode() == KeyEvent.VK_UP) {
+			out.writeObject(MV_UP);
+			System.out.println("Sent: " + MV_UP);
+		}
+		if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+		out.writeObject(MV_RIGHT);
+		System.out.println("Sent: " + MV_RIGHT);
 	}
-	if (e.getKeyCode() == KeyEvent.VK_UP) {
-	out.writeObject(MV_UP);
-	System.out.println("Sent: " + MV_UP);
-}
-if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-out.writeObject(MV_RIGHT);
-System.out.println("Sent: " + MV_RIGHT);
-}
-if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-out.writeObject(MV_DOWN);
-System.out.println("Sent: " + MV_DOWN);
+	if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+	out.writeObject(MV_DOWN);
+	System.out.println("Sent: " + MV_DOWN);
 }
 } catch (IOException err) {
 System.out.println(err);
@@ -122,12 +139,13 @@ addMouseMotionListener(new MouseMotionListener() {
 	public void mouseMoved(MouseEvent e) {
 		try {
 			//System.out.println("MouseX: " + e.getX() + "   MouseY: " + e.getY());
-
-			if (clientNumber == 1 || clientNumber == 2) {
-				out.writeObject(new Integer[]{clientNumber, e.getY()-32});
-			}
-			if (clientNumber == 3 || clientNumber == 4) {
-				out.writeObject(new Integer[]{clientNumber, e.getX()-32});
+			if (clientNumber < 5) {
+				if (clientNumber == 1 || clientNumber == 2) {
+					out.writeObject(new Integer[]{clientNumber, e.getY()-32});
+				}
+				if (clientNumber == 3 || clientNumber == 4) {
+					out.writeObject(new Integer[]{clientNumber, e.getX()-32});
+				}
 			}
 			//System.out.println("Sent: Updated Y Coords");
 
