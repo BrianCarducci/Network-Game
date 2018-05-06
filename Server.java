@@ -265,8 +265,12 @@ public class Server {
                         }
 
                         if (inputString.startsWith("SPECTATOR")) {
+                          synchronized(spectators) {
                             spectators.add(this);
+                          }
+                          synchronized(players) {
                             players.remove(this);
+                          }
                         }
                     }
                 }
