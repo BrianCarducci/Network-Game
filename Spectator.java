@@ -12,9 +12,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-
 public class Spectator implements Serializable {
-    //private static final long serialVersionUID = 8564362918537326616L;
     private final int IFW = JComponent.WHEN_IN_FOCUSED_WINDOW;
     private static final int port = 1518;
     private String hostname;
@@ -25,26 +23,22 @@ public class Spectator implements Serializable {
     private GameWindow gameWindow;
     private int specNum = -1;
 
-
+    // main
     public static void main(String[] args) {
         Spectator chatSpec = new Spectator(args[0], args[1]);
-        //chatClient.initGUI();
         chatSpec.run();
         System.out.println("after run");
-
-
     }
 
     public Spectator(String hostname, String specName) {
         this.hostname = hostname;
         this.specName = specName;
-
-
     }
-
+    // 1. open a new socket connection with server
+    // 2. load game as spectator
+    // 3. start infinite loop to accept server transmissions
     public void run() {
         try {
-
             socket = new Socket(hostname, port); in = new ObjectInputStream(socket.getInputStream());
             out = new ObjectOutputStream(socket.getOutputStream());
 
@@ -54,23 +48,22 @@ public class Spectator implements Serializable {
             while (true) {
                 try {
                     Object input = in .readObject();
-
+                    // if string, check the protocol
+                    if (input instanceof String) {
+                        String line = (String) input;
+                        if (line.startsWith("SCORE")) {
+                            gameWindow.setScores(line.substring(line.indexOf(' ') + 1, line.length()).split(","));
+                        }
+                    }
+                    // if we have coords
                     if (input instanceof Integer[][]) {
                         Integer[][] coords = (Integer[][]) input;
-
                         gameWindow.movePaddle(coords);
-                        //System.out.println(Arrays.deepToString(coords));
                     }
-
                 } catch (ClassNotFoundException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
-
             }
-
-            //out.println("EXIT");
-
         } catch (UnknownHostException e) {
             System.out.println("Unknown host: " + hostname);
             System.out.println(e.getMessage());

@@ -13,10 +13,6 @@ import javax.swing.JTextArea;
 
 import java.awt.geom.*;
 public class GameWindow extends JFrame {
-
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
 
     private ObjectOutputStream out;
@@ -30,7 +26,8 @@ public class GameWindow extends JFrame {
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
     Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "blank cursor");
-
+    // spectator constructor
+    // initialize GUI components but no mouse/key listeners as spectators cannot play
     public GameWindow() {
         paddles = new Rectangle2D.Double[] {
             new Rectangle2D.Double(16, 200, 30, 200), new Rectangle2D.Double(854, 200, 30, 200),
@@ -43,13 +40,22 @@ public class GameWindow extends JFrame {
         setSize(900, 900);
 
         board = new Board();
+        board.setLayout(null);
+        scoreArea.setEditable(false);
+        scoreArea.setOpaque(false);
+        scoreArea.setSize(100, 100);
+        scoreArea.setLocation(20, 20);
+        scoreArea.setForeground(Color.MAGENTA);
+
+        board.add(scoreArea);
 
         add(board, BorderLayout.CENTER);
         setVisible(true);
 
         getContentPane().setCursor(blankCursor);
     }
-
+    // player constructor
+    // sets up the GUI components and mouse/key listeners
     public GameWindow(ObjectOutputStream out, int clientNumber) {
         paddles = new Rectangle2D.Double[] {
             new Rectangle2D.Double(16, 200, 30, 200), new Rectangle2D.Double(854, 200, 30, 200),
@@ -80,7 +86,6 @@ public class GameWindow extends JFrame {
 
         addKeyListener(new KeyListener() {
             public void keyPressed(KeyEvent e) {
-                // TODO Auto-generated method stub
                 try {
                     if (e.getKeyCode() == KeyEvent.VK_R) {
                         out.writeObject(new String("RESET"));
@@ -90,24 +95,19 @@ public class GameWindow extends JFrame {
                     System.out.println(err);
                 }
             }
-
             public void keyReleased(KeyEvent e) {}
-
             public void keyTyped(KeyEvent e) {}
         });
-
+        // mouse listener so we can update the paddle
         addMouseMotionListener(new MouseMotionListener() {
 
             @Override
-            public void mouseDragged(MouseEvent e) {
-                // TODO Auto-generated method stub
-
-            }
+            public void mouseDragged(MouseEvent e) {}
 
             @Override
             public void mouseMoved(MouseEvent e) {
                 try {
-                    //System.out.println("MouseX: " + e.getX() + "   MouseY: " + e.getY());
+                    // check which paddle the player has
                     if (clientNumber < 5) {
                         if (clientNumber == 1 || clientNumber == 2) {
                             out.writeObject(new Integer[] {
@@ -122,16 +122,13 @@ public class GameWindow extends JFrame {
                             });
                         }
                     }
-                    //System.out.println("Sent: Updated Y Coords");
-
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
-
             }
         });
     }
-
+    // update the players paddle position
     public void movePaddle(Integer[][] coords) {
         ball.x = coords[0][0];
         ball.y = coords[0][1];
@@ -144,21 +141,18 @@ public class GameWindow extends JFrame {
                 paddles[tempClientNum].x = coords[i][1];
             }
         }
-
-
         repaint();
     }
-
+    // update the current scores
     public void setScores(String[] scores) {
         String s = "";
-
         for (String score: scores) {
             s += score + "\n";
         }
 
         scoreArea.setText(s);
     }
-
+    // private class board to represent the game panel
     private class Board extends JPanel {
 
         public Board() {
@@ -180,8 +174,5 @@ public class GameWindow extends JFrame {
             g2.fill(ball);
 
         }
-
     }
-
-
 }
